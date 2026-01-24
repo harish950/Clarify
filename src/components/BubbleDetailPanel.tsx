@@ -1,23 +1,29 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CareerBubble } from '@/types/career';
-import { TrendingUp, Clock, DollarSign, AlertCircle, CheckCircle, X, Rocket, Eye } from 'lucide-react';
+import { JobMatch } from '@/types/matching';
+import { TrendingUp, Clock, DollarSign, AlertCircle, CheckCircle, X, Rocket, Eye, Target, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { getJobsForCareer } from '@/data/jobsData';
 import JobsDialog from './JobsDialog';
+import { MatchExplainability } from './MatchExplainability';
 
 interface BubbleDetailPanelProps {
   bubble: CareerBubble | null;
   onClose: () => void;
   isExpanded: boolean;
+  matchData?: JobMatch | null;
 }
 
-const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelProps) => {
+const BubbleDetailPanel = ({ bubble, onClose, isExpanded, matchData }: BubbleDetailPanelProps) => {
   const [showJobs, setShowJobs] = useState(false);
+  const [showMatchDetails, setShowMatchDetails] = useState(false);
   
   if (!bubble) return null;
   
   const jobs = getJobsForCareer(bubble.id);
+  const hasMatchData = matchData && matchData.weightedScore > 0;
 
   return (
     <motion.div
@@ -39,20 +45,47 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelPro
           </Button>
         </div>
 
-        {/* Fit Score */}
+        {/* Fit Score - Use match data if available */}
         <div className="surface-elevated rounded-xl p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Career Fit</span>
-            <span className="text-2xl font-bold text-primary">{bubble.fitScore}%</span>
+            <span className="text-sm text-muted-foreground">
+              {hasMatchData ? 'AI Match Score' : 'Career Fit'}
+            </span>
+            <span className="text-2xl font-bold text-primary">
+              {hasMatchData ? Math.round(matchData.weightedScore * 100) : bubble.fitScore}%
+            </span>
           </div>
-          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div 
-              className="h-full bg-primary rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${bubble.fitScore}%` }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            />
-          </div>
+          <Progress 
+            value={hasMatchData ? matchData.weightedScore * 100 : bubble.fitScore} 
+            className="h-2"
+          />
+          
+          {/* Score breakdown for matched jobs */}
+          {hasMatchData && (
+            <div className="grid grid-cols-3 gap-2 mt-3">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <Target className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-xs font-medium">{Math.round(matchData.skillsScore * 100)}%</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground">Skills</span>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <TrendingUp className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-xs font-medium">{Math.round(matchData.experienceScore * 100)}%</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground">Experience</span>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <Zap className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-xs font-medium">{Math.round(matchData.interestsScore * 100)}%</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground">Interests</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Stats Grid */}
@@ -77,7 +110,7 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelPro
         {/* Description */}
         <p className="text-muted-foreground text-sm mb-6">{bubble.description}</p>
 
-        {/* Skills */}
+        {/* Skills - Use match data if available */}
         <div className="space-y-4 mb-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -85,7 +118,7 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelPro
               <span className="text-sm font-medium">Matched Skills</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {bubble.matchedSkills.map(skill => (
+              {(hasMatchData ? matchData.matchedSkills : bubble.matchedSkills).map(skill => (
                 <span 
                   key={skill}
                   className="px-2.5 py-1 rounded-full text-xs bg-bubble-success/10 text-bubble-success border border-bubble-success/20"
@@ -93,6 +126,9 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelPro
                   {skill}
                 </span>
               ))}
+              {(hasMatchData ? matchData.matchedSkills : bubble.matchedSkills).length === 0 && (
+                <span className="text-xs text-muted-foreground">No matched skills yet</span>
+              )}
             </div>
           </div>
 
@@ -102,7 +138,7 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelPro
               <span className="text-sm font-medium">Skills to Develop</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {bubble.missingSkills.map(skill => (
+              {(hasMatchData ? matchData.missingSkills : bubble.missingSkills).map(skill => (
                 <span 
                   key={skill}
                   className="px-2.5 py-1 rounded-full text-xs bg-bubble-warning/10 text-bubble-warning border border-bubble-warning/20"
@@ -112,6 +148,26 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelPro
               ))}
             </div>
           </div>
+
+          {/* Strength and improvement areas from AI matching */}
+          {hasMatchData && matchData.strengthAreas.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium">Your Strengths</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {matchData.strengthAreas.map((area, i) => (
+                  <span 
+                    key={i}
+                    className="px-2.5 py-1 rounded-full text-xs bg-primary/10 text-primary border border-primary/20"
+                  >
+                    {area}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sub-bubbles / Quests */}

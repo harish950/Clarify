@@ -1,1 +1,10 @@
 project_id = "icwcuvfmxesplccjrcgh"
+
+[functions.generate-embeddings]
+verify_jwt = false
+
+[functions.match-jobs]
+verify_jwt = false
+
+[functions.seed-jobs]
+verify_jwt = false

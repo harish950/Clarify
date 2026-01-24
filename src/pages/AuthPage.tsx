@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowRight, ArrowLeft, Linkedin, FileText, CheckCircle, Plus, X } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Linkedin, FileText, CheckCircle, Plus, X, Loader2 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '@/components/Header';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { generateUserEmbeddings, matchUserToJobs, seedJobs } from '@/services/matchingService';
 
 const AuthPage = () => {
   const [searchParams] = useSearchParams();
@@ -15,11 +17,14 @@ const AuthPage = () => {
   
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     name: '',
     resume: null as File | null,
+    resumeText: '',
     linkedin: '',
     interests: [] as string[],
     skills: [] as string[],
@@ -45,14 +50,129 @@ const AuthPage = () => {
     'Communication', 'Leadership', 'Project Management', 'Design', 'Writing'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Parse resume file to text
+  const parseResumeFile = async (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        resolve(text || '');
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsText(file);
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (mode === 'login') {
-      navigate('/dashboard');
+      setIsSubmitting(true);
+      try {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+        
+        if (error) {
+          toast({
+            title: 'Login Failed',
+            description: error.message,
+            variant: 'destructive',
+          });
+          return;
+        }
+        
+        navigate('/dashboard');
+      } catch (err) {
+        toast({
+          title: 'Error',
+          description: 'An unexpected error occurred',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
     } else if (step < totalSteps) {
+      // Parse resume if uploaded
+      if (step === 2 && formData.resume && !formData.resumeText) {
+        const text = await parseResumeFile(formData.resume);
+        setFormData(prev => ({ ...prev, resumeText: text }));
+      }
       setStep(step + 1);
     } else {
-      navigate('/dashboard');
+      // Final step - create account and generate embeddings
+      setIsSubmitting(true);
+      try {
+        // Sign up user
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              name: formData.name,
+            },
+          },
+        });
+        
+        if (signUpError) {
+          toast({
+            title: 'Signup Failed',
+            description: signUpError.message,
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        toast({
+          title: 'Account Created!',
+          description: 'Generating your career matches...',
+        });
+
+        // Seed jobs first (if not already done)
+        await seedJobs();
+
+        // Generate embeddings for the user profile
+        const profileData = {
+          name: formData.name,
+          email: formData.email,
+          resumeText: formData.resumeText || `Skills: ${formData.skills.join(', ')}. Experience: ${formData.experience}`,
+          linkedinUrl: formData.linkedin,
+          skills: formData.skills,
+          interests: formData.interests,
+          experience: formData.experience,
+          workEnvironment: formData.workEnvironment,
+          salaryRange: formData.salaryRange,
+          careerGoals: [formData.currentGoal, ...formData.helpWith].filter(Boolean),
+        };
+
+        const embeddingResult = await generateUserEmbeddings(profileData);
+        
+        if (!embeddingResult.success) {
+          console.warn('Embedding generation failed:', embeddingResult.error);
+        }
+
+        // Compute job matches
+        const matchResult = await matchUserToJobs();
+        
+        if (matchResult.matches.length > 0) {
+          toast({
+            title: 'Matches Found!',
+            description: `Found ${matchResult.matches.length} career matches for you.`,
+          });
+        }
+
+        navigate('/dashboard');
+      } catch (err) {
+        console.error('Signup error:', err);
+        toast({
+          title: 'Error',
+          description: 'An unexpected error occurred during signup',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -156,9 +276,18 @@ const AuthPage = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                   />
                 </div>
-                <Button type="submit" className="w-full gap-2">
-                  Sign In
-                  <ArrowRight className="w-4 h-4" />
+                <Button type="submit" className="w-full gap-2" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    <>
+                      Sign In
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </Button>
               </form>
 
@@ -479,9 +608,18 @@ const AuthPage = () => {
                         <ArrowLeft className="w-4 h-4 mr-1" />
                         Back
                       </Button>
-                      <Button type="submit" className="flex-1 gap-2">
-                        Launch
-                        <ArrowRight className="w-4 h-4" />
+                      <Button type="submit" className="flex-1 gap-2" disabled={isSubmitting}>
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Creating...
+                          </>
+                        ) : (
+                          <>
+                            Launch
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
                       </Button>
                     </div>
                   </form>
