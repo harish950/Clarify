@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowRight, ArrowLeft, Linkedin, FileText, CheckCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Linkedin, FileText, CheckCircle, Plus, X } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '@/components/Header';
 
@@ -26,6 +26,8 @@ const AuthPage = () => {
     careerGoals: '',
     experience: '',
   });
+  const [customInterest, setCustomInterest] = useState('');
+  const [customSkill, setCustomSkill] = useState('');
 
   const totalSteps = 4;
 
@@ -66,6 +68,28 @@ const AuthPage = () => {
         ? prev.skills.filter(s => s !== skill)
         : [...prev.skills, skill]
     }));
+  };
+
+  const addCustomInterest = () => {
+    const trimmed = customInterest.trim();
+    if (trimmed && trimmed.length <= 50 && !formData.interests.includes(trimmed)) {
+      setFormData(prev => ({
+        ...prev,
+        interests: [...prev.interests, trimmed]
+      }));
+      setCustomInterest('');
+    }
+  };
+
+  const addCustomSkill = () => {
+    const trimmed = customSkill.trim();
+    if (trimmed && trimmed.length <= 50 && !formData.skills.includes(trimmed)) {
+      setFormData(prev => ({
+        ...prev,
+        skills: [...prev.skills, trimmed]
+      }));
+      setCustomSkill('');
+    }
   };
 
   return (
@@ -256,40 +280,72 @@ const AuthPage = () => {
                     <div className="space-y-3">
                       <Label>Career Interests</Label>
                       <div className="flex flex-wrap gap-2">
-                        {interestOptions.map(interest => (
+                        {[...new Set([...interestOptions, ...formData.interests])].map(interest => (
                           <button
                             key={interest}
                             type="button"
                             onClick={() => toggleInterest(interest)}
-                            className={`px-3 py-1.5 rounded-full text-sm transition-all border ${
+                            className={`px-3 py-1.5 rounded-full text-sm transition-all border flex items-center gap-1 ${
                               formData.interests.includes(interest)
                                 ? 'bg-primary text-primary-foreground border-primary'
                                 : 'bg-background text-muted-foreground border-border hover:border-primary/50'
                             }`}
                           >
                             {interest}
+                            {formData.interests.includes(interest) && !interestOptions.includes(interest) && (
+                              <X className="w-3 h-3" />
+                            )}
                           </button>
                         ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Add custom interest..."
+                          value={customInterest}
+                          onChange={(e) => setCustomInterest(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomInterest())}
+                          maxLength={50}
+                          className="flex-1"
+                        />
+                        <Button type="button" variant="outline" size="icon" onClick={addCustomInterest} disabled={!customInterest.trim()}>
+                          <Plus className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
 
                     <div className="space-y-3">
                       <Label>Current Skills</Label>
                       <div className="flex flex-wrap gap-2">
-                        {skillOptions.map(skill => (
+                        {[...new Set([...skillOptions, ...formData.skills])].map(skill => (
                           <button
                             key={skill}
                             type="button"
                             onClick={() => toggleSkill(skill)}
-                            className={`px-3 py-1.5 rounded-full text-sm transition-all border ${
+                            className={`px-3 py-1.5 rounded-full text-sm transition-all border flex items-center gap-1 ${
                               formData.skills.includes(skill)
                                 ? 'bg-accent text-accent-foreground border-accent'
                                 : 'bg-background text-muted-foreground border-border hover:border-accent/50'
                             }`}
                           >
                             {skill}
+                            {formData.skills.includes(skill) && !skillOptions.includes(skill) && (
+                              <X className="w-3 h-3" />
+                            )}
                           </button>
                         ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Add custom skill..."
+                          value={customSkill}
+                          onChange={(e) => setCustomSkill(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill())}
+                          maxLength={50}
+                          className="flex-1"
+                        />
+                        <Button type="button" variant="outline" size="icon" onClick={addCustomSkill} disabled={!customSkill.trim()}>
+                          <Plus className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
 
