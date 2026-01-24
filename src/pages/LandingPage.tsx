@@ -69,11 +69,6 @@ const LandingPage = () => {
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
-          <Link to="/explore">
-            <Button variant="outline" size="lg" className="border-white/40 text-white hover:bg-white/10">
-              Try the demo
-            </Button>
-          </Link>
         </motion.div>
 
         {/* Feature Cards */}
