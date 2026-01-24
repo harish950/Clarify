@@ -124,32 +124,26 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
   }, [bubbles, dimensions, centerX, centerY, userPosition]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    // Allow dragging from anywhere on the canvas
     setIsDragging(true);
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    
-    const meNodeX = centerX + userPosition.x;
-    const meNodeY = centerY + userPosition.y;
     setDragOffset({
-      x: e.clientX - rect.left - meNodeX,
-      y: e.clientY - rect.top - meNodeY
+      x: e.clientX - userPosition.x,
+      y: e.clientY - userPosition.y
     });
-  }, [centerX, centerY, userPosition]);
+  }, [userPosition]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging) return;
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
     
-    const newX = e.clientX - rect.left - centerX - dragOffset.x;
-    const newY = e.clientY - rect.top - centerY - dragOffset.y;
+    const newX = e.clientX - dragOffset.x;
+    const newY = e.clientY - dragOffset.y;
     
-    const maxDrag = 80;
+    const maxDrag = 150;
     setUserPosition({
       x: Math.max(-maxDrag, Math.min(maxDrag, newX)),
       y: Math.max(-maxDrag, Math.min(maxDrag, newY))
     });
-  }, [isDragging, centerX, centerY, dragOffset]);
+  }, [isDragging, dragOffset]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -158,7 +152,8 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-full overflow-hidden bg-graph-bg"
+      className={`relative w-full h-full overflow-hidden bg-graph-bg ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+      onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -291,7 +286,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
 
       {/* Center "You" Node */}
       <motion.div
-        className={`absolute z-20 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className="absolute z-20"
         style={{
           left: centerX + userPosition.x - 28,
           top: centerY + userPosition.y - 28,
@@ -302,8 +297,6 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
         whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.98 }}
-        onMouseDown={handleMouseDown}
       >
         <div className="w-full h-full rounded-full bg-graph-node-main" />
         <span className="absolute left-full ml-3 whitespace-nowrap text-graph-label font-bold text-sm top-1/2 -translate-y-1/2">
@@ -319,7 +312,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
         >
-          Drag "You" to explore different paths
+          Drag anywhere to explore
         </motion.div>
       )}
     </div>
