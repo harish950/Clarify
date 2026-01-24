@@ -95,13 +95,13 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Edge blur overlays - matching homepage design */}
-      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-graph-bg via-graph-bg/80 to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-graph-bg via-graph-bg/80 to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-graph-bg to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-graph-bg to-transparent z-[5] pointer-events-none" />
+      {/* Edge blur overlays - exact match with homepage */}
+      <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-graph-bg via-graph-bg/90 via-60% to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-graph-bg via-graph-bg/60 to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-graph-bg to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-graph-bg to-transparent z-[5] pointer-events-none" />
 
-      {/* Connection lines - matching homepage design */}
+      {/* Connection lines - exact match with homepage */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ left: 0, top: 0 }}>
         <defs>
           <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -112,20 +112,6 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
             </feMerge>
           </filter>
         </defs>
-        
-        {/* Distance rings */}
-        {[0.3, 0.55, 0.8].map((radius, i) => (
-          <circle
-            key={i}
-            cx={centerX + userPosition.x}
-            cy={centerY + userPosition.y}
-            r={Math.min(dimensions.width, dimensions.height) * 0.35 * radius}
-            fill="none"
-            stroke="hsl(var(--graph-edge))"
-            strokeWidth="1"
-            opacity="0.15"
-          />
-        ))}
         
         {bubbles.map((bubble, index) => {
           if (!bubble.unlocked) return null;
@@ -138,9 +124,9 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
               x2={pos.x}
               y2={pos.y}
               stroke="hsl(var(--graph-edge))"
-              strokeWidth="1.5"
+              strokeWidth={1.5}
               initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 0.5 }}
+              animate={{ pathLength: 1, opacity: 0.6 }}
               transition={{ duration: 0.8, delay: 0.3 + index * 0.02 }}
             />
           );
