@@ -11,6 +11,7 @@ import JobsDialog from './JobsDialog';
 import { MatchExplainability } from './MatchExplainability';
 import RoadmapDrawer from './RoadmapDrawer';
 import { useSavedPaths } from '@/hooks/useSavedPaths';
+import { useAppliedJobs } from '@/hooks/useAppliedJobs';
 
 interface BubbleDetailPanelProps {
   bubble: CareerBubble | null;
@@ -26,6 +27,7 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded, matchData }: BubbleDet
   const [currentPathId, setCurrentPathId] = useState<string | null>(null);
   
   const { isLoading, startPath, updateStepCompletion, getSavedPath } = useSavedPaths();
+  const { applyToJob, isJobApplied } = useAppliedJobs();
   
   if (!bubble) return null;
   
@@ -278,6 +280,8 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded, matchData }: BubbleDet
           onOpenChange={setShowJobs}
           jobs={jobs}
           careerName={bubble.name}
+          onApplyToJob={applyToJob}
+          isJobApplied={isJobApplied}
         />
         
         {/* Roadmap Drawer */}
