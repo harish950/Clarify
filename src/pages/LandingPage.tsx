@@ -43,18 +43,16 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-6 pt-8 pb-20">
-        {/* Graph as Hero */}
+      <main>
+        {/* Graph as Hero - full width */}
         <motion.div 
-          className="max-w-6xl mx-auto mb-12" 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
+          className="w-full" 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="rounded-2xl overflow-hidden">
-            <div className="h-[500px] md:h-[600px]">
-              <LandingGraphPreview />
-            </div>
+          <div className="h-[500px] md:h-[600px]">
+            <LandingGraphPreview />
           </div>
         </motion.div>
 
@@ -80,7 +78,7 @@ const LandingPage = () => {
 
         {/* Feature Cards */}
         <motion.div 
-          className="grid md:grid-cols-3 gap-4 mt-20 max-w-4xl mx-auto" 
+          className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto px-6 pb-20" 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}

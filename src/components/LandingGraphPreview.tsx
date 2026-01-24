@@ -50,46 +50,46 @@ const LandingGraphPreview = () => {
       isMain: true
     };
 
-    // Secondary nodes (career paths)
+    // Secondary nodes (career paths) - spread wider
     const secondaryNodes: Node[] = [
-      { id: 'swe', label: 'Software Engineer', x: cx - 180, y: cy - 100, size: 18, isSecondary: true },
-      { id: 'pm', label: 'Product Manager', x: cx + 160, y: cy - 80, size: 16, isSecondary: true },
-      { id: 'ds', label: 'Data Scientist', x: cx - 140, y: cy + 120, size: 17, isSecondary: true },
-      { id: 'ux', label: 'UX Designer', x: cx + 180, y: cy + 90, size: 15, isSecondary: true },
-      { id: 'devops', label: 'DevOps', x: cx + 60, y: cy - 150, size: 12, isSecondary: true },
-      { id: 'ml', label: 'ML Engineer', x: cx - 60, y: cy + 160, size: 14, isSecondary: true },
+      { id: 'swe', label: 'Software Engineer', x: cx - w * 0.22, y: cy - 80, size: 18, isSecondary: true },
+      { id: 'pm', label: 'Product Manager', x: cx + w * 0.20, y: cy - 60, size: 16, isSecondary: true },
+      { id: 'ds', label: 'Data Scientist', x: cx - w * 0.18, y: cy + 100, size: 17, isSecondary: true },
+      { id: 'ux', label: 'UX Designer', x: cx + w * 0.22, y: cy + 70, size: 15, isSecondary: true },
+      { id: 'devops', label: 'DevOps', x: cx + w * 0.08, y: cy - 130, size: 12, isSecondary: true },
+      { id: 'ml', label: 'ML Engineer', x: cx - w * 0.08, y: cy + 140, size: 14, isSecondary: true },
     ];
 
-    // Tertiary nodes (skills, concepts)
+    // Tertiary nodes (skills, concepts) - spread wider
     const tertiaryNodes: Node[] = [
       // Around Software Engineer
-      { id: 'react', label: 'React', x: cx - 280, y: cy - 60, size: 8 },
-      { id: 'node', label: 'Node.js', x: cx - 240, y: cy - 160, size: 7 },
-      { id: 'typescript', label: 'TypeScript', x: cx - 320, y: cy - 130, size: 6 },
-      { id: 'api', label: 'APIs', x: cx - 100, y: cy - 160, size: 7 },
+      { id: 'react', label: 'React', x: cx - w * 0.32, y: cy - 40, size: 8 },
+      { id: 'node', label: 'Node.js', x: cx - w * 0.28, y: cy - 140, size: 7 },
+      { id: 'typescript', label: 'TypeScript', x: cx - w * 0.38, y: cy - 100, size: 6 },
+      { id: 'api', label: 'APIs', x: cx - w * 0.12, y: cy - 140, size: 7 },
       
       // Around Product Manager
-      { id: 'agile', label: 'Agile', x: cx + 280, y: cy - 120, size: 7 },
-      { id: 'roadmap', label: 'Roadmaps', x: cx + 250, y: cy - 30, size: 6 },
-      { id: 'analytics', label: 'Analytics', x: cx + 100, y: cy - 40, size: 6 },
+      { id: 'agile', label: 'Agile', x: cx + w * 0.32, y: cy - 100, size: 7 },
+      { id: 'roadmap', label: 'Roadmaps', x: cx + w * 0.30, y: cy - 10, size: 6 },
+      { id: 'analytics', label: 'Analytics', x: cx + w * 0.12, y: cy - 20, size: 6 },
       
       // Around Data Scientist
-      { id: 'python', label: 'Python', x: cx - 260, y: cy + 100, size: 8 },
-      { id: 'sql', label: 'SQL', x: cx - 200, y: cy + 180, size: 6 },
-      { id: 'stats', label: 'Statistics', x: cx - 60, y: cy + 80, size: 5 },
+      { id: 'python', label: 'Python', x: cx - w * 0.30, y: cy + 80, size: 8 },
+      { id: 'sql', label: 'SQL', x: cx - w * 0.24, y: cy + 160, size: 6 },
+      { id: 'stats', label: 'Statistics', x: cx - w * 0.06, y: cy + 60, size: 5 },
       
       // Around UX Designer
-      { id: 'figma', label: 'Figma', x: cx + 280, y: cy + 140, size: 7 },
-      { id: 'research', label: 'Research', x: cx + 240, y: cy + 50, size: 5 },
-      { id: 'proto', label: 'Prototyping', x: cx + 120, y: cy + 160, size: 6 },
+      { id: 'figma', label: 'Figma', x: cx + w * 0.34, y: cy + 120, size: 7 },
+      { id: 'research', label: 'Research', x: cx + w * 0.30, y: cy + 30, size: 5 },
+      { id: 'proto', label: 'Prototyping', x: cx + w * 0.14, y: cy + 140, size: 6 },
       
       // Around DevOps
-      { id: 'docker', label: 'Docker', x: cx + 140, y: cy - 180, size: 6 },
-      { id: 'ci', label: 'CI/CD', x: cx - 20, y: cy - 180, size: 5 },
+      { id: 'docker', label: 'Docker', x: cx + w * 0.16, y: cy - 160, size: 6 },
+      { id: 'ci', label: 'CI/CD', x: cx - w * 0.02, y: cy - 160, size: 5 },
       
       // Around ML
-      { id: 'tensorflow', label: 'TensorFlow', x: cx - 160, y: cy + 200, size: 5 },
-      { id: 'nlp', label: 'NLP', x: cx + 40, y: cy + 200, size: 5 },
+      { id: 'tensorflow', label: 'TensorFlow', x: cx - w * 0.18, y: cy + 180, size: 5 },
+      { id: 'nlp', label: 'NLP', x: cx + w * 0.04, y: cy + 180, size: 5 },
     ];
 
     const allNodes = [mainNode, ...secondaryNodes, ...tertiaryNodes];
@@ -147,7 +147,7 @@ const LandingGraphPreview = () => {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-full overflow-hidden bg-graph-bg rounded-xl"
+      className="relative w-full h-full overflow-hidden bg-graph-bg"
     >
       {/* Edge blur overlays for better header visibility */}
       <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-graph-bg via-graph-bg/90 via-60% to-transparent z-[5] pointer-events-none" />
