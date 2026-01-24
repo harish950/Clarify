@@ -44,10 +44,10 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
   };
 
   const getBubbleSize = (bubble: CareerBubble) => {
-    const baseSize = 48;
+    const baseSize = 24;
     const sizeMultiplier = bubble.fitScore / 100;
-    const timeBoost = (timeMultiplier - 1) * 0.15;
-    return baseSize + (sizeMultiplier * 36) + (timeBoost * 20);
+    const timeBoost = (timeMultiplier - 1) * 0.08;
+    return baseSize + (sizeMultiplier * 20) + (timeBoost * 10);
   };
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
