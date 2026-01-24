@@ -149,11 +149,6 @@ const LandingGraphPreview = () => {
       ref={containerRef}
       className="relative w-full h-full overflow-hidden bg-graph-bg rounded-xl"
     >
-      {/* Edge blur overlays for better header visibility */}
-      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-graph-bg via-graph-bg/80 to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-graph-bg via-graph-bg/60 to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-graph-bg to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-graph-bg to-transparent z-[5] pointer-events-none" />
       {/* Header overlay */}
       <div className="absolute inset-x-0 top-0 z-10 p-8 md:p-12">
         <motion.h1 
