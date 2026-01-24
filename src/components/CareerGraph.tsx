@@ -85,33 +85,48 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
     setIsDragging(false);
   }, []);
 
-  // Bubble color mapping
-  const getBubbleColor = (sector: string) => {
-    const colors: Record<string, string> = {
-      'Technology': 'hsl(220, 90%, 56%)',
-      'Data & AI': 'hsl(262, 80%, 55%)',
-      'Business': 'hsl(340, 75%, 55%)',
-      'Design': 'hsl(175, 75%, 45%)',
-    };
-    return colors[sector] || 'hsl(220, 90%, 56%)';
-  };
+  // Bubble color mapping - now using unified graph design tokens
 
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-full overflow-hidden bg-graph-bg rounded-2xl"
+      className="relative w-full h-full overflow-hidden bg-graph-bg"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Edge blur overlays */}
-      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-graph-bg via-graph-bg/60 to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-graph-bg via-graph-bg/60 to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-graph-bg to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-graph-bg to-transparent z-[5] pointer-events-none" />
+      {/* Edge blur overlays - matching homepage design */}
+      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-graph-bg via-graph-bg/80 to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-graph-bg via-graph-bg/80 to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-graph-bg to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-graph-bg to-transparent z-[5] pointer-events-none" />
 
-      {/* Connection lines */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+      {/* Connection lines - matching homepage design */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ left: 0, top: 0 }}>
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        
+        {/* Distance rings */}
+        {[0.3, 0.55, 0.8].map((radius, i) => (
+          <circle
+            key={i}
+            cx={centerX + userPosition.x}
+            cy={centerY + userPosition.y}
+            r={Math.min(dimensions.width, dimensions.height) * 0.35 * radius}
+            fill="none"
+            stroke="hsl(var(--graph-edge))"
+            strokeWidth="1"
+            opacity="0.15"
+          />
+        ))}
+        
         {bubbles.map((bubble, index) => {
           if (!bubble.unlocked) return null;
           const pos = getBubblePosition(bubble, index);
@@ -125,28 +140,14 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
               stroke="hsl(var(--graph-edge))"
               strokeWidth="1.5"
               initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 0.6 }}
-              transition={{ duration: 0.8, delay: index * 0.05 }}
+              animate={{ pathLength: 1, opacity: 0.5 }}
+              transition={{ duration: 0.8, delay: 0.3 + index * 0.02 }}
             />
           );
         })}
-        
-        {/* Distance rings */}
-        {[0.3, 0.55, 0.8].map((radius, i) => (
-          <circle
-            key={i}
-            cx={centerX + userPosition.x}
-            cy={centerY + userPosition.y}
-            r={Math.min(dimensions.width, dimensions.height) * 0.35 * radius}
-            fill="none"
-            stroke="hsl(var(--graph-edge))"
-            strokeWidth="1"
-            opacity="0.25"
-          />
-        ))}
       </svg>
 
-      {/* Career Bubbles */}
+      {/* Career Bubbles - matching homepage node design */}
       {bubbles.map((bubble, index) => {
         const pos = getBubblePosition(bubble, index);
         const size = getBubbleSize(bubble);
@@ -155,7 +156,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
         return (
           <motion.div
             key={bubble.id}
-            className={`absolute cursor-pointer ${isLocked ? 'opacity-30' : ''}`}
+            className={`absolute ${isLocked ? 'opacity-30' : 'cursor-pointer'}`}
             style={{
               left: pos.x - size / 2,
               top: pos.y - size / 2,
@@ -164,34 +165,33 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
             }}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
-            whileHover={{ scale: 1.12, zIndex: 10 }}
-            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.4, delay: 0.4 + index * 0.03, ease: "easeOut" }}
+            whileHover={!isLocked ? { scale: 1.12, zIndex: 10 } : undefined}
+            whileTap={!isLocked ? { scale: 0.98 } : undefined}
             onClick={() => !isLocked && onBubbleClick(bubble)}
             onMouseEnter={() => !isLocked && onBubbleHover(bubble)}
             onMouseLeave={() => onBubbleHover(null)}
           >
-            <div 
-              className="w-full h-full rounded-full bg-graph-node flex items-center justify-center relative"
+            {/* Node circle - matching homepage style */}
+            <div className="w-full h-full rounded-full bg-graph-node" />
+            
+            {/* Label positioned outside the circle */}
+            <span 
+              className="absolute left-full ml-2 whitespace-nowrap text-graph-label font-medium text-xs top-1/2 -translate-y-1/2"
             >
-              {/* Label positioned outside */}
-              <span 
-                className="absolute left-full ml-2 whitespace-nowrap text-graph-label font-medium text-xs"
-              >
-                {bubble.name.split(' ')[0]}
-              </span>
+              {bubble.name.split(' ')[0]}
+            </span>
 
-              {isLocked && (
-                <div className="absolute inset-0 rounded-full flex items-center justify-center bg-graph-bg/60 backdrop-blur-sm">
-                  <span className="text-sm">🔒</span>
-                </div>
-              )}
-            </div>
+            {isLocked && (
+              <div className="absolute inset-0 rounded-full flex items-center justify-center bg-graph-bg/60 backdrop-blur-sm">
+                <span className="text-sm">🔒</span>
+              </div>
+            )}
           </motion.div>
         );
       })}
 
-      {/* Center "Me" Node */}
+      {/* Center "You" Node - matching homepage main node design */}
       <motion.div
         className={`absolute z-20 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{
@@ -200,13 +200,17 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
           width: 56,
           height: 56,
         }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.98 }}
         onMouseDown={handleMouseDown}
       >
-        <div className="w-full h-full rounded-full bg-graph-node-main flex items-center justify-center">
-          <span className="font-bold text-sm text-white tracking-tight">You</span>
-        </div>
+        {/* Node circle - matching homepage main node */}
+        <div className="w-full h-full rounded-full bg-graph-node-main" />
+        
+        {/* Label positioned outside the circle */}
         <span className="absolute left-full ml-3 whitespace-nowrap text-graph-label font-bold text-sm top-1/2 -translate-y-1/2">
           You
         </span>
