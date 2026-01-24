@@ -10,6 +10,7 @@ interface CareerGraphProps {
   onBubbleClick: (bubble: CareerBubble) => void;
   onBubbleHover: (bubble: CareerBubble | null) => void;
   timeMultiplier: number;
+  selectedBubbleId?: string | null;
   onViewChange?: (offset: { x: number; y: number }) => void;
 }
 
@@ -32,13 +33,34 @@ interface SkillNode {
   isAcquired: boolean;
 }
 
-const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, onViewChange }: CareerGraphProps) => {
+const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, selectedBubbleId, onViewChange }: CareerGraphProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 });
+  const [targetOffset, setTargetOffset] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  // Animate viewOffset towards targetOffset
+  useEffect(() => {
+    if (viewOffset.x === targetOffset.x && viewOffset.y === targetOffset.y) return;
+    
+    const animationFrame = requestAnimationFrame(() => {
+      const ease = 0.12;
+      const newX = viewOffset.x + (targetOffset.x - viewOffset.x) * ease;
+      const newY = viewOffset.y + (targetOffset.y - viewOffset.y) * ease;
+      
+      // Stop when close enough
+      if (Math.abs(targetOffset.x - newX) < 0.5 && Math.abs(targetOffset.y - newY) < 0.5) {
+        setViewOffset(targetOffset);
+      } else {
+        setViewOffset({ x: newX, y: newY });
+      }
+    });
+    
+    return () => cancelAnimationFrame(animationFrame);
+  }, [viewOffset, targetOffset]);
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -66,16 +88,16 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, on
   }, [zoom]);
 
   const resetView = useCallback(() => {
-    setViewOffset({ x: 0, y: 0 });
+    setTargetOffset({ x: 0, y: 0 });
     setZoom(1);
     onViewChange?.({ x: 0, y: 0 });
   }, [onViewChange]);
 
-  // Center view on a specific job node
+  // Center view on a specific job node with smooth animation
   const centerOnJob = useCallback((jobX: number, jobY: number) => {
     const offsetX = centerX - jobX;
     const offsetY = centerY - jobY;
-    setViewOffset({ x: offsetX, y: offsetY });
+    setTargetOffset({ x: offsetX, y: offsetY });
   }, [centerX, centerY]);
 
   // Position jobs around the center and skills around jobs
@@ -165,10 +187,12 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, on
     const newY = e.clientY - dragStart.y;
     
     const maxDrag = 200;
-    setViewOffset({
+    const newOffset = {
       x: Math.max(-maxDrag, Math.min(maxDrag, newX)),
       y: Math.max(-maxDrag, Math.min(maxDrag, newY))
-    });
+    };
+    setViewOffset(newOffset);
+    setTargetOffset(newOffset);
   }, [isDragging, dragStart]);
 
   const handleMouseUp = useCallback(() => {
@@ -250,6 +274,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, on
       {/* Job Nodes */}
       {jobNodes.map((jobNode, index) => {
         const isLocked = !jobNode.job.unlocked;
+        const isSelected = selectedBubbleId === jobNode.job.id;
         
         return (
           <motion.div
@@ -260,11 +285,15 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, on
               top: jobNode.y - jobNode.size / 2,
               width: jobNode.size,
               height: jobNode.size,
+              zIndex: isSelected ? 20 : 10,
             }}
             initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: isLocked ? 0.3 : 1 }}
+            animate={{ 
+              scale: isSelected ? 1.3 : 1, 
+              opacity: isLocked ? 0.3 : 1 
+            }}
             transition={{ duration: 0.4, delay: 0.25 + index * 0.05, ease: "easeOut" }}
-            whileHover={!isLocked ? { scale: 1.15, zIndex: 15 } : undefined}
+            whileHover={!isLocked && !isSelected ? { scale: 1.15, zIndex: 15 } : undefined}
             onClick={(e) => {
               e.stopPropagation();
               if (!isLocked) {
@@ -280,9 +309,17 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, on
             onMouseEnter={() => !isLocked && onBubbleHover(jobNode.job)}
             onMouseLeave={() => onBubbleHover(null)}
           >
-            <div className="w-full h-full rounded-full bg-graph-node-main/80" />
+            <div className={`w-full h-full rounded-full transition-all duration-300 ${
+              isSelected 
+                ? 'bg-primary ring-4 ring-primary/30 shadow-lg shadow-primary/25' 
+                : 'bg-graph-node-main/80'
+            }`} />
             <span 
-              className={`absolute whitespace-nowrap text-graph-label font-semibold text-[10px] top-1/2 -translate-y-1/2 ${
+              className={`absolute whitespace-nowrap font-semibold top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                isSelected 
+                  ? 'text-primary text-xs' 
+                  : 'text-graph-label text-[10px]'
+              } ${
                 jobNode.labelSide === 'right' ? 'left-full ml-2' : 'right-full mr-2 text-right'
               }`}
             >
