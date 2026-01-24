@@ -43,10 +43,10 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-6 pt-12 pb-20">
+      <main className="container mx-auto px-6 pt-8 pb-20">
         {/* Graph as Hero */}
         <motion.div 
-          className="max-w-6xl mx-auto mb-16" 
+          className="max-w-6xl mx-auto mb-12" 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
@@ -58,46 +58,25 @@ const LandingPage = () => {
           </div>
         </motion.div>
 
-        {/* Text Content Below */}
-        <div className="max-w-2xl mx-auto text-center">
-          <motion.h1 
-            className="text-3xl md:text-5xl font-bold mb-4 leading-tight tracking-tight" 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            Navigate your career with{' '}
-            <span className="text-gradient">clarity</span>
-          </motion.h1>
-
-          <motion.p 
-            className="text-muted-foreground mb-8 max-w-lg mx-auto" 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            Visualize career opportunities as an interactive map. See which roles fit your skills, what you need to learn, and how to get there.
-          </motion.p>
-
-          <motion.div 
-            className="flex flex-col sm:flex-row items-center justify-center gap-3" 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <Link to="/auth?mode=signup">
-              <Button size="lg" className="gap-2">
-                Start mapping your career
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-            <Link to="/explore">
-              <Button variant="outline" size="lg">
-                Try the demo
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
+        {/* CTA Buttons */}
+        <motion.div 
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16" 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Link to="/auth?mode=signup">
+            <Button size="lg" className="gap-2">
+              Start mapping your career
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+          <Link to="/explore">
+            <Button variant="outline" size="lg">
+              Try the demo
+            </Button>
+          </Link>
+        </motion.div>
 
         {/* Feature Cards */}
         <motion.div 

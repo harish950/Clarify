@@ -149,6 +149,26 @@ const LandingGraphPreview = () => {
       ref={containerRef}
       className="relative w-full h-full overflow-hidden bg-graph-bg rounded-xl"
     >
+      {/* Header overlay */}
+      <div className="absolute inset-x-0 top-0 z-10 p-8 md:p-12">
+        <motion.h1 
+          className="text-3xl md:text-5xl font-bold text-white mb-3 leading-tight tracking-tight"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Navigate your career with{' '}
+          <span className="text-graph-node-main">clarity</span>
+        </motion.h1>
+        <motion.p 
+          className="text-graph-label/80 max-w-md text-sm md:text-base"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          Visualize career opportunities as an interactive map. See which roles fit your skills and how to get there.
+        </motion.p>
+      </div>
 
       {/* Edge lines */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
