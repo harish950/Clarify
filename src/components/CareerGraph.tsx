@@ -33,13 +33,35 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
   const centerX = dimensions.width / 2;
   const centerY = dimensions.height / 2;
 
+  // Sort bubbles by distance to create concentric rings
+  const sortedBubbles = [...bubbles].sort((a, b) => a.distance - b.distance);
+  
+  // Group bubbles into rings based on distance ranges
+  const getRingIndex = (distance: number) => {
+    if (distance <= 25) return 0;
+    if (distance <= 45) return 1;
+    if (distance <= 65) return 2;
+    return 3;
+  };
+
   const getBubblePosition = (bubble: CareerBubble, index: number) => {
-    const angle = (index / bubbles.length) * Math.PI * 2 - Math.PI / 2;
-    const adjustedDistance = bubble.distance * (1 - (timeMultiplier - 1) * 0.08);
-    const radius = Math.min(dimensions.width, dimensions.height) * 0.35 * (adjustedDistance / 100);
+    const ringIndex = getRingIndex(bubble.distance);
+    const bubblesInRing = sortedBubbles.filter(b => getRingIndex(b.distance) === ringIndex);
+    const indexInRing = bubblesInRing.findIndex(b => b.id === bubble.id);
+    const countInRing = bubblesInRing.length;
+    
+    // Distribute evenly within ring, with offset per ring to stagger
+    const ringOffset = ringIndex * 0.3;
+    const angle = ((indexInRing / countInRing) * Math.PI * 2) - Math.PI / 2 + ringOffset;
+    
+    // Fixed ring radii for even spacing
+    const ringRadii = [0.18, 0.32, 0.46, 0.58];
+    const baseRadius = Math.min(dimensions.width, dimensions.height) * ringRadii[ringIndex];
+    const adjustedRadius = baseRadius * (1 - (timeMultiplier - 1) * 0.05);
+    
     return {
-      x: centerX + userPosition.x + Math.cos(angle) * radius,
-      y: centerY + userPosition.y + Math.sin(angle) * radius
+      x: centerX + userPosition.x + Math.cos(angle) * adjustedRadius,
+      y: centerY + userPosition.y + Math.sin(angle) * adjustedRadius
     };
   };
 
