@@ -7,7 +7,7 @@ import LandingGraphPreview from '@/components/LandingGraphPreview';
 const LandingPage = () => {
   return <div className="min-h-screen bg-graph-bg text-graph-label">
       {/* Navigation */}
-      <nav className="flex items-center justify-between px-6 py-4 lg:px-12 border-b border-border">
+      <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
         <motion.div className="flex items-center gap-2" initial={{
         opacity: 0,
         x: -20
@@ -51,7 +51,7 @@ const LandingPage = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="rounded-2xl overflow-hidden shadow-2xl border border-border">
+          <div className="rounded-2xl overflow-hidden">
             <div className="h-[500px] md:h-[600px]">
               <LandingGraphPreview />
             </div>
@@ -92,7 +92,7 @@ const LandingPage = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6 px-6">
+      <footer className="py-6 px-6">
         <div className="container mx-auto flex items-center justify-between text-sm text-muted-foreground">
           <span>© 2024 Career Nebula</span>
           <div className="flex items-center gap-6">
@@ -112,8 +112,8 @@ const FeatureCard = ({
   icon,
   title,
   description
-}: FeatureCardProps) => <div className="surface-elevated rounded-xl p-5 hover:border-primary/30 transition-colors">
-    <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-3">
+}: FeatureCardProps) => <div className="rounded-xl p-5 bg-white/5 backdrop-blur-sm transition-colors hover:bg-white/10">
+    <div className="w-10 h-10 rounded-lg bg-primary/20 text-primary flex items-center justify-center mb-3">
       {icon}
     </div>
     <h3 className="font-semibold mb-1">{title}</h3>
