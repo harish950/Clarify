@@ -118,6 +118,42 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_paths: {
+        Row: {
+          career_id: string
+          career_name: string
+          id: string
+          progress_percentage: number | null
+          roadmap: Json | null
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          career_id: string
+          career_name: string
+          id?: string
+          progress_percentage?: number | null
+          roadmap?: Json | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          career_id?: string
+          career_name?: string
+          id?: string
+          progress_percentage?: number | null
+          roadmap?: Json | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           career_goals: string[] | null
