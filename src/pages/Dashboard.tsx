@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Search, Bell } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import CareerGraph from '@/components/CareerGraph';
 import BubbleDetailPanel from '@/components/BubbleDetailPanel';
 import BubbleTooltip from '@/components/BubbleTooltip';
 import TimeSlider from '@/components/TimeSlider';
 import UserStats from '@/components/UserStats';
+import Header from '@/components/Header';
 import { CareerBubble } from '@/types/career';
 import { mockCareerBubbles, mockUserProfile } from '@/data/mockData';
 
@@ -39,40 +39,33 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
-        <div className="flex items-center gap-4">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xs">C</span>
+      <Header 
+        rightContent={
+          <>
+            <div className="hidden md:flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 mr-2">
+              <Search className="w-4 h-4 text-muted-foreground" />
+              <input 
+                type="text" 
+                placeholder="Search careers..." 
+                className="bg-transparent border-none outline-none text-sm w-32"
+              />
             </div>
-            <span className="font-semibold hidden sm:block">Clarity</span>
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="hidden md:flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 mr-2">
-            <Search className="w-4 h-4 text-muted-foreground" />
-            <input 
-              type="text" 
-              placeholder="Search careers..." 
-              className="bg-transparent border-none outline-none text-sm w-32"
-            />
-          </div>
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Settings className="w-4 h-4" />
-          </Button>
-          <div className="w-px h-5 bg-border mx-1" />
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center text-xs font-semibold text-background">
-              {mockUserProfile.name.split(' ').map(n => n[0]).join('')}
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Settings className="w-4 h-4" />
+            </Button>
+            <div className="w-px h-5 bg-border mx-1" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center text-xs font-semibold text-background">
+                {mockUserProfile.name.split(' ').map(n => n[0]).join('')}
+              </div>
             </div>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-57px)]">

@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowRight, ArrowLeft, Linkedin, FileText, CheckCircle } from 'lucide-react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import Header from '@/components/Header';
 
 const AuthPage = () => {
   const [searchParams] = useSearchParams();
@@ -68,16 +69,12 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      {/* Logo */}
-      <Link to="/" className="absolute top-6 left-6 flex items-center gap-2">
-        <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-          <span className="text-primary-foreground font-bold text-sm">C</span>
-        </div>
-        <span className="text-lg font-semibold">Clarity</span>
-      </Link>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <Header />
 
       {/* Auth Card */}
+      <div className="flex-1 flex items-center justify-center p-6">
       <motion.div 
         className="w-full max-w-md surface-elevated rounded-2xl p-8"
         initial={{ opacity: 0, y: 20 }}
@@ -369,6 +366,7 @@ const AuthPage = () => {
           )}
         </AnimatePresence>
       </motion.div>
+      </div>
     </div>
   );
 };

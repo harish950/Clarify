@@ -3,44 +3,24 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, BarChart3, Target, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import LandingGraphPreview from '@/components/LandingGraphPreview';
+import Header from '@/components/Header';
 
 const LandingPage = () => {
   return <div className="min-h-screen bg-graph-bg text-graph-label">
       {/* Navigation */}
-      <nav className="flex items-center justify-between px-8 py-4 lg:px-16">
-        <motion.div className="flex items-center gap-2" initial={{
-        opacity: 0,
-        x: -20
-      }} animate={{
-        opacity: 1,
-        x: 0
-      }} transition={{
-        duration: 0.4
-      }}>
-          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">C</span>
-          </div>
-          <span className="text-lg font-semibold">Clarity</span>
-        </motion.div>
-
-        <motion.div className="flex items-center gap-3" initial={{
-        opacity: 0,
-        x: 20
-      }} animate={{
-        opacity: 1,
-        x: 0
-      }} transition={{
-        duration: 0.4,
-        delay: 0.1
-      }}>
-          <Link to="/auth">
-            <Button variant="ghost" size="sm" className="text-graph-label hover:text-white hover:bg-white/10">Sign In</Button>
-          </Link>
-          <Link to="/auth?mode=signup">
-            <Button size="sm" className="bg-graph-node hover:bg-graph-node/80">Get Started</Button>
-          </Link>
-        </motion.div>
-      </nav>
+      <Header 
+        variant="transparent" 
+        rightContent={
+          <>
+            <Link to="/auth">
+              <Button variant="ghost" size="sm" className="text-graph-label hover:text-white hover:bg-white/10">Sign In</Button>
+            </Link>
+            <Link to="/auth?mode=signup">
+              <Button size="sm" className="bg-graph-node hover:bg-graph-node/80">Get Started</Button>
+            </Link>
+          </>
+        }
+      />
 
       {/* Hero Section */}
       <main>
