@@ -150,7 +150,7 @@ const LandingGraphPreview = () => {
       className="relative w-full h-full overflow-hidden bg-graph-bg rounded-xl"
     >
       {/* Edge blur overlays for better header visibility */}
-      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-graph-bg via-graph-bg/80 to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-graph-bg via-graph-bg/90 via-60% to-transparent z-[5] pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-graph-bg via-graph-bg/60 to-transparent z-[5] pointer-events-none" />
       <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-graph-bg to-transparent z-[5] pointer-events-none" />
       <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-graph-bg to-transparent z-[5] pointer-events-none" />
@@ -166,7 +166,7 @@ const LandingGraphPreview = () => {
           <span className="text-graph-node-main">clarity</span>
         </motion.h1>
         <motion.p 
-          className="text-graph-label/80 max-w-md text-sm md:text-base"
+          className="text-graph-label max-w-md text-sm md:text-base font-medium"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
