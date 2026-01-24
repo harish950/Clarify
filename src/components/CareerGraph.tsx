@@ -294,7 +294,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
         transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
         whileHover={{ scale: 1.05 }}
       >
-        <div className="w-full h-full rounded-full border-[3px] border-graph-node-main bg-transparent" />
+        <div className="w-full h-full rounded-full border-[3px] border-graph-node-main bg-graph-bg" />
         <span className="absolute left-full ml-3 whitespace-nowrap text-graph-label font-bold text-sm top-1/2 -translate-y-1/2">
           You
         </span>
