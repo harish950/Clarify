@@ -124,7 +124,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
     const visibleJobIds = bubbles.map(b => b.id);
     const userSkillNames = mockUserProfile.skills.map(s => s.toLowerCase());
     
-    // Prioritize acquired skills, limit non-acquired skills
+    // Prioritize acquired skills, limit non-acquired skills to 10, distributed across jobs
     const allRelevantSkills = mockSkills
       .filter(skill => skill.jobs.some(jobId => visibleJobIds.includes(jobId)))
       .map(skill => ({
@@ -134,8 +134,30 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
       }));
     
     const acquiredSkills = allRelevantSkills.filter(s => s.isAcquired);
-    const missingSkills = allRelevantSkills.filter(s => !s.isAcquired).slice(0, 6); // Limit missing skills to 6
-    const relevantSkills = [...acquiredSkills, ...missingSkills];
+    
+    // Distribute missing skills across different jobs for better spread
+    const missingSkillsByJob = new Map<string, typeof allRelevantSkills>();
+    allRelevantSkills.filter(s => !s.isAcquired).forEach(skill => {
+      const primaryJob = skill.jobs[0];
+      if (!missingSkillsByJob.has(primaryJob)) {
+        missingSkillsByJob.set(primaryJob, []);
+      }
+      missingSkillsByJob.get(primaryJob)!.push(skill);
+    });
+    
+    // Take up to 2 missing skills per job to distribute evenly, max 10 total
+    const distributedMissingSkills: typeof allRelevantSkills = [];
+    let round = 0;
+    while (distributedMissingSkills.length < 10 && round < 3) {
+      for (const [_, jobSkills] of missingSkillsByJob) {
+        if (round < jobSkills.length && distributedMissingSkills.length < 10) {
+          distributedMissingSkills.push(jobSkills[round]);
+        }
+      }
+      round++;
+    }
+    
+    const relevantSkills = [...acquiredSkills, ...distributedMissingSkills];
 
     // Position skills - place them around jobs with better spacing
     const placedSkills: { x: number; y: number; size: number }[] = [];
