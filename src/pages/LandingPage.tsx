@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BarChart3, Target, Zap } from 'lucide-react';
+import { ArrowRight, BarChart3, Target, Zap, Users, Sparkles, TrendingUp, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import LandingGraphPreview from '@/components/LandingGraphPreview';
 import Header from '@/components/Header';
 
 const LandingPage = () => {
-  return <div className="min-h-screen bg-graph-bg text-graph-label">
+  return (
+    <div className="min-h-screen bg-graph-bg text-graph-label">
       {/* Navigation */}
       <Header 
         variant="transparent" 
@@ -62,34 +63,161 @@ const LandingPage = () => {
           <FeatureCard icon={<BarChart3 className="w-5 h-5" />} title="Skill gap analysis" description="Understand exactly what you need to learn to reach your goals." />
           <FeatureCard icon={<Zap className="w-5 h-5" />} title="Actionable roadmaps" description="Get step-by-step guidance with courses, projects, and milestones." />
         </motion.div>
+
+        {/* How It Works Section */}
+        <section className="py-20 px-6 border-t border-white/10">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">How it works</h2>
+              <p className="text-graph-label/70 max-w-lg mx-auto">Three simple steps to discover your ideal career path</p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { step: '01', title: 'Tell us about you', description: 'Share your skills, interests, and career aspirations through a quick assessment.' },
+                { step: '02', title: 'Explore your map', description: 'Navigate an interactive graph of careers tailored to your unique profile.' },
+                { step: '03', title: 'Take action', description: 'Follow personalized roadmaps with courses, projects, and milestones.' }
+              ].map((item, index) => (
+                <motion.div
+                  key={item.step}
+                  className="relative"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.15 }}
+                >
+                  <span className="text-5xl font-bold text-graph-node/20 absolute -top-2 -left-2">{item.step}</span>
+                  <div className="pt-8 pl-4">
+                    <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
+                    <p className="text-sm text-graph-label/70">{item.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="py-16 px-6 bg-white/5">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <StatItem value="50+" label="Career paths" icon={<TrendingUp className="w-4 h-4" />} />
+              <StatItem value="200+" label="Skills tracked" icon={<Sparkles className="w-4 h-4" />} />
+              <StatItem value="10k+" label="Users exploring" icon={<Users className="w-4 h-4" />} />
+              <StatItem value="85%" label="Find clarity" icon={<CheckCircle className="w-4 h-4" />} />
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Testimonial Section */}
+        <section className="py-20 px-6">
+          <div className="max-w-3xl mx-auto">
+            <motion.div
+              className="text-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="mb-8">
+                <p className="text-xl md:text-2xl text-white/90 italic leading-relaxed">
+                  "I graduated with no idea what to do. Clarity showed me how my random skills actually connect to real careers I'd never considered."
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-graph-node/30 flex items-center justify-center text-sm font-semibold text-white">
+                  JL
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-white">Jamie L.</p>
+                  <p className="text-xs text-graph-label/60">Recent Graduate, now Product Designer</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Final CTA Section */}
+        <section className="py-20 px-6 border-t border-white/10">
+          <motion.div
+            className="max-w-2xl mx-auto text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Ready to find your path?</h2>
+            <p className="text-graph-label/70 mb-8 max-w-lg mx-auto">
+              Join thousands of fresh graduates who've discovered careers they never knew existed.
+            </p>
+            <Link to="/auth?mode=signup">
+              <Button size="lg" className="gap-2 bg-graph-node hover:bg-graph-node/80 text-white">
+                Get started for free
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </motion.div>
+        </section>
       </main>
 
       {/* Footer */}
-      <footer className="py-6 px-6">
-        <div className="container mx-auto flex items-center justify-between text-sm text-graph-label/60">
+      <footer className="py-8 px-6 border-t border-white/10">
+        <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-graph-label/60">
           <span>© 2024 Clarity</span>
           <div className="flex items-center gap-6">
+            <a href="#" className="hover:text-white transition-colors">About</a>
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">Contact</a>
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 interface FeatureCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
 }
-const FeatureCard = ({
-  icon,
-  title,
-  description
-}: FeatureCardProps) => <div className="rounded-xl p-5 bg-white/5 backdrop-blur-sm transition-colors hover:bg-white/10">
+
+const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
+  <div className="rounded-xl p-5 bg-white/5 backdrop-blur-sm transition-colors hover:bg-white/10">
     <div className="w-10 h-10 rounded-lg bg-graph-node/20 text-graph-node flex items-center justify-center mb-3">
       {icon}
     </div>
     <h3 className="font-semibold mb-1 text-white">{title}</h3>
     <p className="text-sm text-graph-label/70">{description}</p>
-  </div>;
+  </div>
+);
+
+interface StatItemProps {
+  value: string;
+  label: string;
+  icon: React.ReactNode;
+}
+
+const StatItem = ({ value, label, icon }: StatItemProps) => (
+  <div>
+    <div className="flex items-center justify-center gap-1.5 text-graph-node mb-1">
+      {icon}
+      <span className="text-2xl md:text-3xl font-bold text-white">{value}</span>
+    </div>
+    <p className="text-sm text-graph-label/70">{label}</p>
+  </div>
+);
+
 export default LandingPage;
