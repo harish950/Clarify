@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CareerBubble } from '@/types/career';
 import { JobMatch } from '@/types/matching';
-import { TrendingUp, Clock, DollarSign, AlertCircle, CheckCircle, X, Rocket, Eye, Target, Zap } from 'lucide-react';
+import { RoadmapStep } from '@/types/roadmap';
+import { TrendingUp, Clock, DollarSign, AlertCircle, CheckCircle, X, Rocket, Eye, Target, Zap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { getJobsForCareer } from '@/data/jobsData';
 import JobsDialog from './JobsDialog';
 import { MatchExplainability } from './MatchExplainability';
+import RoadmapDrawer from './RoadmapDrawer';
+import { useSavedPaths } from '@/hooks/useSavedPaths';
 
 interface BubbleDetailPanelProps {
   bubble: CareerBubble | null;
@@ -18,12 +21,58 @@ interface BubbleDetailPanelProps {
 
 const BubbleDetailPanel = ({ bubble, onClose, isExpanded, matchData }: BubbleDetailPanelProps) => {
   const [showJobs, setShowJobs] = useState(false);
-  const [showMatchDetails, setShowMatchDetails] = useState(false);
+  const [showRoadmap, setShowRoadmap] = useState(false);
+  const [currentRoadmap, setCurrentRoadmap] = useState<RoadmapStep[]>([]);
+  const [currentPathId, setCurrentPathId] = useState<string | null>(null);
+  
+  const { isLoading, startPath, updateStepCompletion, getSavedPath } = useSavedPaths();
   
   if (!bubble) return null;
   
   const jobs = getJobsForCareer(bubble.id);
   const hasMatchData = matchData && matchData.weightedScore > 0;
+  
+  // Get missing and matched skills for roadmap generation
+  const missingSkills = hasMatchData ? matchData.missingSkills : bubble.missingSkills;
+  const matchedSkills = hasMatchData ? matchData.matchedSkills : bubble.matchedSkills;
+
+  const handleStartPath = async () => {
+    // First check if path already exists
+    const existingPath = await getSavedPath(bubble.id);
+    
+    if (existingPath) {
+      // Path already exists, just show the roadmap
+      setCurrentRoadmap(existingPath.roadmap);
+      setCurrentPathId(existingPath.id);
+      setShowRoadmap(true);
+      return;
+    }
+    
+    // Generate new roadmap
+    setShowRoadmap(true);
+    const result = await startPath(
+      bubble.id,
+      bubble.name,
+      missingSkills,
+      matchedSkills
+    );
+    
+    if (result) {
+      setCurrentRoadmap(result.roadmap);
+      setCurrentPathId(result.savedPath.id);
+    }
+  };
+
+  const handleStepComplete = async (stepId: string) => {
+    if (!currentPathId) return;
+    
+    await updateStepCompletion(currentPathId, stepId, true);
+    
+    // Update local state
+    setCurrentRoadmap(prev => prev.map(step => 
+      step.id === stepId ? { ...step, completed: true } : step
+    ));
+  };
 
   return (
     <motion.div
@@ -205,9 +254,17 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded, matchData }: BubbleDet
 
         {/* Action Buttons */}
         <div className="mt-6 space-y-2">
-          <Button className="w-full gap-2">
-            <Rocket className="w-4 h-4" />
-            Start This Path
+          <Button 
+            className="w-full gap-2" 
+            onClick={handleStartPath}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Rocket className="w-4 h-4" />
+            )}
+            {isLoading ? 'Generating...' : 'Start This Path'}
           </Button>
           <Button variant="outline" className="w-full gap-2" onClick={() => setShowJobs(true)}>
             <Eye className="w-4 h-4" />
@@ -221,6 +278,16 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded, matchData }: BubbleDet
           onOpenChange={setShowJobs}
           jobs={jobs}
           careerName={bubble.name}
+        />
+        
+        {/* Roadmap Drawer */}
+        <RoadmapDrawer
+          open={showRoadmap}
+          onOpenChange={setShowRoadmap}
+          careerName={bubble.name}
+          roadmap={currentRoadmap}
+          isLoading={isLoading && currentRoadmap.length === 0}
+          onStepComplete={handleStepComplete}
         />
       </div>
     </motion.div>
