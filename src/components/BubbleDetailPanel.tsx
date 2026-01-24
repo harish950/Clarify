@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { CareerBubble } from '@/types/career';
-import { TrendingUp, Clock, DollarSign, AlertCircle, CheckCircle, X } from 'lucide-react';
+import { TrendingUp, Clock, DollarSign, AlertCircle, CheckCircle, X, Rocket, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface BubbleDetailPanelProps {
@@ -140,9 +140,16 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelPro
           </div>
         )}
 
-        {/* Action Button */}
-        <div className="mt-6">
-          <Button className="w-full">Start This Path</Button>
+        {/* Action Buttons */}
+        <div className="mt-6 space-y-2">
+          <Button className="w-full gap-2">
+            <Rocket className="w-4 h-4" />
+            Start This Path
+          </Button>
+          <Button variant="outline" className="w-full gap-2">
+            <ExternalLink className="w-4 h-4" />
+            Apply for Jobs
+          </Button>
         </div>
       </div>
     </motion.div>
