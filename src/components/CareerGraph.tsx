@@ -56,8 +56,8 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
   // Handle zoom with mouse wheel
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    const zoomSpeed = 0.001;
-    const newZoom = Math.max(0.5, Math.min(2, zoom - e.deltaY * zoomSpeed));
+    const zoomSpeed = 0.003;
+    const newZoom = Math.max(0.4, Math.min(2.5, zoom - e.deltaY * zoomSpeed));
     setZoom(newZoom);
   }, [zoom]);
 
