@@ -34,11 +34,11 @@ const LandingGraphPreview = () => {
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  const { nodes, edges } = useMemo(() => {
+  const { nodes, edges, backgroundDots } = useMemo(() => {
     const w = dimensions.width;
     const h = dimensions.height;
     const cx = w / 2;
-    const cy = h / 2 + 40; // Offset down to make room for header
+    const cy = h / 2;
 
     // Main center node
     const mainNode: Node = {
@@ -46,48 +46,100 @@ const LandingGraphPreview = () => {
       label: 'You',
       x: cx,
       y: cy,
-      size: 24,
+      size: 28,
       isMain: true
     };
 
-    // Secondary nodes (career paths) - reduced and spread out more
+    // Secondary nodes (career paths)
     const secondaryNodes: Node[] = [
-      { id: 'swe', label: 'Software Engineer', x: cx - 200, y: cy - 80, size: 14, isSecondary: true },
-      { id: 'pm', label: 'Product Manager', x: cx + 200, y: cy - 60, size: 13, isSecondary: true },
-      { id: 'ds', label: 'Data Scientist', x: cx - 160, y: cy + 100, size: 14, isSecondary: true },
-      { id: 'ux', label: 'UX Designer', x: cx + 180, y: cy + 80, size: 12, isSecondary: true },
+      { id: 'swe', label: 'Software Engineer', x: cx - 180, y: cy - 100, size: 18, isSecondary: true },
+      { id: 'pm', label: 'Product Manager', x: cx + 160, y: cy - 80, size: 16, isSecondary: true },
+      { id: 'ds', label: 'Data Scientist', x: cx - 140, y: cy + 120, size: 17, isSecondary: true },
+      { id: 'ux', label: 'UX Designer', x: cx + 180, y: cy + 90, size: 15, isSecondary: true },
+      { id: 'devops', label: 'DevOps', x: cx + 60, y: cy - 150, size: 12, isSecondary: true },
+      { id: 'ml', label: 'ML Engineer', x: cx - 60, y: cy + 160, size: 14, isSecondary: true },
     ];
 
-    // Tertiary nodes - simplified, fewer nodes
+    // Tertiary nodes (skills, concepts)
     const tertiaryNodes: Node[] = [
-      { id: 'react', label: 'React', x: cx - 320, y: cy - 40, size: 6 },
-      { id: 'python', label: 'Python', x: cx - 280, y: cy + 140, size: 6 },
-      { id: 'figma', label: 'Figma', x: cx + 300, y: cy + 120, size: 6 },
-      { id: 'agile', label: 'Agile', x: cx + 320, y: cy - 20, size: 6 },
+      // Around Software Engineer
+      { id: 'react', label: 'React', x: cx - 280, y: cy - 60, size: 8 },
+      { id: 'node', label: 'Node.js', x: cx - 240, y: cy - 160, size: 7 },
+      { id: 'typescript', label: 'TypeScript', x: cx - 320, y: cy - 130, size: 6 },
+      { id: 'api', label: 'APIs', x: cx - 100, y: cy - 160, size: 7 },
+      
+      // Around Product Manager
+      { id: 'agile', label: 'Agile', x: cx + 280, y: cy - 120, size: 7 },
+      { id: 'roadmap', label: 'Roadmaps', x: cx + 250, y: cy - 30, size: 6 },
+      { id: 'analytics', label: 'Analytics', x: cx + 100, y: cy - 40, size: 6 },
+      
+      // Around Data Scientist
+      { id: 'python', label: 'Python', x: cx - 260, y: cy + 100, size: 8 },
+      { id: 'sql', label: 'SQL', x: cx - 200, y: cy + 180, size: 6 },
+      { id: 'stats', label: 'Statistics', x: cx - 60, y: cy + 80, size: 5 },
+      
+      // Around UX Designer
+      { id: 'figma', label: 'Figma', x: cx + 280, y: cy + 140, size: 7 },
+      { id: 'research', label: 'Research', x: cx + 240, y: cy + 50, size: 5 },
+      { id: 'proto', label: 'Prototyping', x: cx + 120, y: cy + 160, size: 6 },
+      
+      // Around DevOps
+      { id: 'docker', label: 'Docker', x: cx + 140, y: cy - 180, size: 6 },
+      { id: 'ci', label: 'CI/CD', x: cx - 20, y: cy - 180, size: 5 },
+      
+      // Around ML
+      { id: 'tensorflow', label: 'TensorFlow', x: cx - 160, y: cy + 200, size: 5 },
+      { id: 'nlp', label: 'NLP', x: cx + 40, y: cy + 200, size: 5 },
     ];
 
     const allNodes = [mainNode, ...secondaryNodes, ...tertiaryNodes];
 
-    // Create edges - simplified connections
+    // Create edges
     const edgeList: Edge[] = [
       // Main to secondary
       { from: 'you', to: 'swe' },
       { from: 'you', to: 'pm' },
       { from: 'you', to: 'ds' },
       { from: 'you', to: 'ux' },
+      { from: 'you', to: 'devops' },
+      { from: 'you', to: 'ml' },
       
       // Secondary to tertiary
       { from: 'swe', to: 'react' },
-      { from: 'ds', to: 'python' },
-      { from: 'ux', to: 'figma' },
+      { from: 'swe', to: 'node' },
+      { from: 'swe', to: 'typescript' },
+      { from: 'swe', to: 'api' },
       { from: 'pm', to: 'agile' },
+      { from: 'pm', to: 'roadmap' },
+      { from: 'pm', to: 'analytics' },
+      { from: 'ds', to: 'python' },
+      { from: 'ds', to: 'sql' },
+      { from: 'ds', to: 'stats' },
+      { from: 'ux', to: 'figma' },
+      { from: 'ux', to: 'research' },
+      { from: 'ux', to: 'proto' },
+      { from: 'devops', to: 'docker' },
+      { from: 'devops', to: 'ci' },
+      { from: 'ml', to: 'tensorflow' },
+      { from: 'ml', to: 'nlp' },
       
       // Cross connections
-      { from: 'swe', to: 'pm' },
-      { from: 'ds', to: 'swe' },
+      { from: 'swe', to: 'devops' },
+      { from: 'ds', to: 'ml' },
+      { from: 'pm', to: 'analytics' },
+      { from: 'python', to: 'tensorflow' },
+      { from: 'api', to: 'analytics' },
     ];
 
-    return { nodes: allNodes, edges: edgeList };
+    // Background scattered dots
+    const dots = Array.from({ length: 60 }, (_, i) => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      size: Math.random() * 3 + 1,
+      opacity: Math.random() * 0.4 + 0.1,
+    }));
+
+    return { nodes: allNodes, edges: edgeList, backgroundDots: dots };
   }, [dimensions]);
 
   const getNodeById = (id: string) => nodes.find(n => n.id === id);
