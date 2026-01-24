@@ -17,6 +17,7 @@ import { useSavedPaths } from '@/hooks/useSavedPaths';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { RoadmapStep } from '@/types/roadmap';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -31,8 +32,9 @@ const Dashboard = () => {
   const [selectedPath, setSelectedPath] = useState<SavedPath | null>(null);
   const [showRoadmapDrawer, setShowRoadmapDrawer] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
-  const { updateStepCompletion } = useSavedPaths();
+  const { savedPaths, loadSavedPaths, updateStepCompletion } = useSavedPaths();
 
   const {
     matches,
@@ -53,6 +55,15 @@ const Dashboard = () => {
       if (session?.user) {
         setUser(session.user);
         await loadMatches();
+        await loadSavedPaths();
+        
+        // Load user profile
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single();
+        setUserProfile(profile);
       }
       setIsLoading(false);
     };
@@ -60,7 +71,7 @@ const Dashboard = () => {
     // Small delay for loading animation
     const timer = setTimeout(checkAuth, 1000);
     return () => clearTimeout(timer);
-  }, [loadMatches]);
+  }, [loadMatches, loadSavedPaths]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -118,18 +129,23 @@ const Dashboard = () => {
     setShowRoadmapDrawer(true);
   };
 
-  const handleRoadmapStepComplete = async (stepId: string) => {
+  const handleRoadmapStepComplete = async (stepId: string, completed: boolean) => {
     if (!selectedPath) return;
-    await updateStepCompletion(selectedPath.id, stepId, true);
+    await updateStepCompletion(selectedPath.id, stepId, completed);
     
-    // Update local state
+    // Update local selected path state
     setSelectedPath(prev => {
       if (!prev) return null;
+      const updatedRoadmap = prev.roadmap.map(step =>
+        step.id === stepId ? { ...step, completed } : step
+      );
+      const completedCount = updatedRoadmap.filter(s => s.completed).length;
+      const progressPercentage = Math.round((completedCount / updatedRoadmap.length) * 100);
       return {
         ...prev,
-        roadmap: prev.roadmap.map(step =>
-          step.id === stepId ? { ...step, completed: true } : step
-        )
+        roadmap: updatedRoadmap,
+        progress_percentage: progressPercentage,
+        status: progressPercentage === 100 ? 'completed' : 'active'
       };
     });
   };
@@ -255,6 +271,8 @@ const Dashboard = () => {
             >
               <UserProfileDrawer 
                 user={user}
+                savedPaths={savedPaths}
+                userProfile={userProfile}
                 onPathClick={handlePathClick}
               />
             </motion.aside>

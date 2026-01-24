@@ -30,7 +30,7 @@ interface RoadmapDrawerProps {
   careerName: string;
   roadmap: RoadmapStep[];
   isLoading?: boolean;
-  onStepComplete?: (stepId: string) => void;
+  onStepComplete?: (stepId: string, completed: boolean) => void;
 }
 
 const stepIcons = {
@@ -193,19 +193,28 @@ const RoadmapDrawer = ({
                                 </div>
                               )}
                               
-                              {/* Mark complete button */}
-                              {!isCompleted && onStepComplete && (
+                              {/* Toggle complete button */}
+                              {onStepComplete && (
                                 <Button 
                                   size="sm" 
-                                  variant="outline"
+                                  variant={isCompleted ? "secondary" : "outline"}
                                   className="w-full gap-2"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    onStepComplete(step.id);
+                                    onStepComplete(step.id, !isCompleted);
                                   }}
                                 >
-                                  <Circle className="w-3 h-3" />
-                                  Mark as Complete
+                                  {isCompleted ? (
+                                    <>
+                                      <CheckCircle2 className="w-3 h-3" />
+                                      Mark as Incomplete
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Circle className="w-3 h-3" />
+                                      Mark as Complete
+                                    </>
+                                  )}
                                 </Button>
                               )}
                             </div>
