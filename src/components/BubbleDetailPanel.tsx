@@ -14,10 +14,11 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelPro
 
   return (
     <motion.div
-      className="fixed inset-y-0 right-0 w-full max-w-md bg-card border-l border-border z-50 shadow-xl"
-      initial={{ x: '100%' }}
-      animate={{ x: isExpanded ? 0 : '100%' }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+      className="h-full w-full bg-card border-l border-border overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
     >
       <div className="p-6 h-full overflow-y-auto">
         {/* Header */}

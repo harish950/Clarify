@@ -10,6 +10,7 @@ interface CareerGraphProps {
   onBubbleClick: (bubble: CareerBubble) => void;
   onBubbleHover: (bubble: CareerBubble | null) => void;
   timeMultiplier: number;
+  onViewChange?: (offset: { x: number; y: number }) => void;
 }
 
 interface JobNode {
@@ -31,7 +32,7 @@ interface SkillNode {
   isAcquired: boolean;
 }
 
-const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: CareerGraphProps) => {
+const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, onViewChange }: CareerGraphProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 });
@@ -53,6 +54,9 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
+  const centerX = dimensions.width / 2;
+  const centerY = dimensions.height / 2;
+
   // Handle zoom with mouse wheel
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
@@ -64,10 +68,15 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
   const resetView = useCallback(() => {
     setViewOffset({ x: 0, y: 0 });
     setZoom(1);
-  }, []);
+    onViewChange?.({ x: 0, y: 0 });
+  }, [onViewChange]);
 
-  const centerX = dimensions.width / 2;
-  const centerY = dimensions.height / 2;
+  // Center view on a specific job node
+  const centerOnJob = useCallback((jobX: number, jobY: number) => {
+    const offsetX = centerX - jobX;
+    const offsetY = centerY - jobY;
+    setViewOffset({ x: offsetX, y: offsetY });
+  }, [centerX, centerY]);
 
   // Position jobs around the center and skills around jobs
   const { jobNodes, skillNodes } = useMemo(() => {
@@ -258,7 +267,15 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
             whileHover={!isLocked ? { scale: 1.15, zIndex: 15 } : undefined}
             onClick={(e) => {
               e.stopPropagation();
-              if (!isLocked) onBubbleClick(jobNode.job);
+              if (!isLocked) {
+                // Calculate the base position (without current offset) to center on
+                const jobRadius = Math.min(dimensions.width, dimensions.height) * 0.28;
+                const angle = (index / bubbles.length) * Math.PI * 2 - Math.PI / 2;
+                const baseX = centerX + Math.cos(angle) * jobRadius;
+                const baseY = centerY + Math.sin(angle) * jobRadius;
+                centerOnJob(baseX, baseY);
+                onBubbleClick(jobNode.job);
+              }
             }}
             onMouseEnter={() => !isLocked && onBubbleHover(jobNode.job)}
             onMouseLeave={() => onBubbleHover(null)}
