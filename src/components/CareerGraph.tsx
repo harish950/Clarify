@@ -62,7 +62,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
     });
 
     const sectorNames = Object.keys(sectorMap);
-    const domainRadius = Math.min(dimensions.width, dimensions.height) * 0.22;
+    const domainRadius = Math.min(dimensions.width, dimensions.height) * 0.26;
 
     // Position domains in quadrants to maximize space
     const domainAngles = [
@@ -81,39 +81,39 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
         name: sector,
         x: centerX + userPosition.x + Math.cos(angle) * domainRadius,
         y: centerY + userPosition.y + Math.sin(angle) * domainRadius,
-        size: 36,
+        size: 32,
         careers
       };
     });
 
-    // Position careers around their domains
+    // Position careers around their domains with more spacing
     const careers: PositionedCareer[] = [];
     
     domainNodes.forEach((domain, domainIndex) => {
       const careerCount = domain.careers.length;
-      const careerRadius = 85 + Math.max(0, careerCount - 3) * 8;
+      // Increase base radius for more spacing
+      const careerRadius = 100 + Math.max(0, careerCount - 3) * 15;
       
-      // Determine which side of center this domain is on
-      const domainIsOnRight = domain.x > centerX + userPosition.x;
+      // Calculate angle offset so careers don't overlap between domains
+      const domainAngle = domainAngles[domainIndex % 4];
       
       domain.careers.forEach((career, careerIndex) => {
-        // Spread careers in a full circle around domain
-        const baseAngle = (careerIndex / careerCount) * Math.PI * 2;
-        // Offset each domain's careers to prevent overlap
-        const offsetAngle = domainIndex * 0.4;
-        const angle = baseAngle + offsetAngle;
+        // Spread careers in arc facing away from center
+        const arcSpread = Math.PI * 0.9;
+        const startAngle = domainAngle - arcSpread / 2;
+        const angle = startAngle + (careerIndex / Math.max(careerCount - 1, 1)) * arcSpread;
         
         const x = domain.x + Math.cos(angle) * careerRadius;
         const y = domain.y + Math.sin(angle) * careerRadius;
         
-        // Label goes opposite to the center to avoid overlap with lines
+        // Label goes opposite to the domain center
         const careerIsOnRight = x > domain.x;
         
         careers.push({
           career,
           x,
           y,
-          size: 16 + (career.fitScore / 100) * 12,
+          size: 20 + (career.fitScore / 100) * 10,
           labelSide: careerIsOnRight ? 'right' : 'left',
           domainId: domain.id
         });
@@ -199,7 +199,6 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
         
         {/* Lines from Domains to Careers */}
         {positionedCareers.map((pc, index) => {
-          if (!pc.career.unlocked) return null;
           const domain = domains.find(d => d.id === pc.domainId);
           if (!domain) return null;
           
@@ -213,7 +212,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
               stroke="hsl(var(--graph-edge))"
               strokeWidth={1}
               initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 0.35 }}
+              animate={{ pathLength: 1, opacity: pc.career.unlocked ? 0.5 : 0.2 }}
               transition={{ duration: 0.5, delay: 0.4 + index * 0.02 }}
             />
           );
