@@ -119,6 +119,7 @@ const Dashboard = () => {
               onBubbleClick={handleBubbleClick}
               onBubbleHover={setHoveredBubble}
               timeMultiplier={timeProjection}
+              selectedBubbleId={selectedBubble?.id}
             />
           </motion.div>
 
