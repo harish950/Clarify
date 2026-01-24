@@ -1,7 +1,7 @@
 import { useRef, useCallback, useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CareerBubble } from '@/types/career';
-import { mockSkills } from '@/data/mockData';
+import { mockSkills, mockUserProfile } from '@/data/mockData';
 
 interface CareerGraphProps {
   bubbles: CareerBubble[];
@@ -26,6 +26,7 @@ interface SkillNode {
   size: number;
   connectedJobs: string[];
   labelSide: 'left' | 'right';
+  isAcquired: boolean;
 }
 
 const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: CareerGraphProps) => {
@@ -105,6 +106,10 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
       const x = centerX + viewOffset.x + Math.cos(angleFromCenter + angleOffset) * skillDistance;
       const y = centerY + viewOffset.y + Math.sin(angleFromCenter + angleOffset) * skillDistance;
 
+      // Check if user has this skill
+      const userSkillNames = mockUserProfile.skills.map(s => s.toLowerCase());
+      const isAcquired = userSkillNames.includes(skill.name.toLowerCase());
+
       return {
         id: skill.id,
         name: skill.name,
@@ -112,7 +117,8 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
         y,
         size: 16 + connectedJobNodes.length * 2,
         connectedJobs: skill.jobs.filter(jobId => visibleJobIds.includes(jobId)),
-        labelSide: x > centerX + viewOffset.x ? 'right' : 'left'
+        labelSide: x > centerX + viewOffset.x ? 'right' : 'left',
+        isAcquired
       };
     }).filter(Boolean) as SkillNode[];
 
@@ -269,7 +275,11 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
           transition={{ duration: 0.3, delay: 0.6 + index * 0.02, ease: "easeOut" }}
           whileHover={{ scale: 1.2, zIndex: 15 }}
         >
-          <div className="w-full h-full rounded-full bg-bubble-warning/20 border border-bubble-warning/40" />
+          <div className={`w-full h-full rounded-full ${
+            skillNode.isAcquired 
+              ? 'bg-emerald-500/20 border border-emerald-500/40' 
+              : 'bg-bubble-warning/20 border border-bubble-warning/40'
+          }`} />
           <span 
             className={`absolute whitespace-nowrap text-graph-label font-medium text-[8px] top-1/2 -translate-y-1/2 opacity-70 ${
               skillNode.labelSide === 'right' ? 'left-full ml-1' : 'right-full mr-1 text-right'
