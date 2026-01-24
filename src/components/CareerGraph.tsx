@@ -126,7 +126,9 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
       skill.jobs.some(jobId => visibleJobIds.includes(jobId))
     );
 
-    // Position skills - place them between jobs they connect to
+    // Position skills - place them around jobs with better spacing
+    const placedSkills: { x: number; y: number; size: number }[] = [];
+    
     const skills: SkillNode[] = relevantSkills.map((skill, index) => {
       // Find jobs this skill connects to
       const connectedJobNodes = jobs.filter(j => skill.jobs.includes(j.job.id));
@@ -141,17 +143,62 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
       
       // Push skill outward from center
       const angleFromCenter = Math.atan2(avgY - centerY - viewOffset.y, avgX - centerX - viewOffset.x);
-      const distanceFromCenter = Math.sqrt(
-        Math.pow(avgX - centerX - viewOffset.x, 2) + 
-        Math.pow(avgY - centerY - viewOffset.y, 2)
-      );
       
-      // Position skill further out than jobs, with some spread
-      const skillDistance = distanceFromCenter + skillRadius + (index % 3) * 25;
-      const angleOffset = ((index % 5) - 2) * 0.15;
+      // Use golden ratio for better angular distribution
+      const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+      const baseAngleOffset = index * goldenAngle * 0.3;
       
-      const x = centerX + viewOffset.x + Math.cos(angleFromCenter + angleOffset) * skillDistance;
-      const y = centerY + viewOffset.y + Math.sin(angleFromCenter + angleOffset) * skillDistance;
+      // Vary distance based on index to create layers
+      const layerIndex = Math.floor(index / 6);
+      const baseDistance = skillRadius + 40 + layerIndex * 45;
+      
+      // Find a position that doesn't overlap
+      let finalX = 0;
+      let finalY = 0;
+      let attempts = 0;
+      const nodeSize = 14 + connectedJobNodes.length * 2;
+      const minSpacing = nodeSize + 50; // Account for label width
+      
+      while (attempts < 12) {
+        const angleOffset = baseAngleOffset + attempts * 0.25;
+        const distance = baseDistance + (attempts % 3) * 30;
+        
+        const testX = centerX + viewOffset.x + Math.cos(angleFromCenter + angleOffset) * distance;
+        const testY = centerY + viewOffset.y + Math.sin(angleFromCenter + angleOffset) * distance;
+        
+        // Check for overlaps with already placed skills
+        const hasOverlap = placedSkills.some(placed => {
+          const dx = testX - placed.x;
+          const dy = testY - placed.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          return dist < minSpacing;
+        });
+        
+        // Check for overlaps with job nodes
+        const overlapsJob = jobs.some(job => {
+          const dx = testX - job.x;
+          const dy = testY - job.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          return dist < job.size + minSpacing;
+        });
+        
+        if (!hasOverlap && !overlapsJob) {
+          finalX = testX;
+          finalY = testY;
+          break;
+        }
+        
+        attempts++;
+      }
+      
+      // Fallback if no good position found
+      if (finalX === 0 && finalY === 0) {
+        const fallbackDistance = baseDistance + 60;
+        finalX = centerX + viewOffset.x + Math.cos(angleFromCenter + baseAngleOffset) * fallbackDistance;
+        finalY = centerY + viewOffset.y + Math.sin(angleFromCenter + baseAngleOffset) * fallbackDistance;
+      }
+      
+      placedSkills.push({ x: finalX, y: finalY, size: nodeSize });
 
       // Check if user has this skill
       const userSkillNames = mockUserProfile.skills.map(s => s.toLowerCase());
@@ -160,11 +207,11 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
       return {
         id: skill.id,
         name: skill.name,
-        x,
-        y,
-        size: 16 + connectedJobNodes.length * 2,
+        x: finalX,
+        y: finalY,
+        size: nodeSize,
         connectedJobs: skill.jobs.filter(jobId => visibleJobIds.includes(jobId)),
-        labelSide: x > centerX + viewOffset.x ? 'right' : 'left',
+        labelSide: finalX > centerX + viewOffset.x ? 'right' : 'left',
         isAcquired
       };
     }).filter(Boolean) as SkillNode[];
