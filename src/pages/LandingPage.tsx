@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import LandingGraphPreview from '@/components/LandingGraphPreview';
 
 const LandingPage = () => {
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-graph-bg text-graph-label">
       {/* Navigation */}
       <nav className="flex items-center justify-between px-6 py-4 lg:px-12 border-b border-border">
         <motion.div className="flex items-center gap-2" initial={{
