@@ -1,28 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Search, Bell } from 'lucide-react';
+import { Settings, Search, Bell, Filter, RefreshCw, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CareerGraph from '@/components/CareerGraph';
 import BubbleDetailPanel from '@/components/BubbleDetailPanel';
 import BubbleTooltip from '@/components/BubbleTooltip';
 import Header from '@/components/Header';
+import { MatchFiltersPanel } from '@/components/MatchFiltersPanel';
 import { CareerBubble } from '@/types/career';
 import { mockCareerBubbles, mockUserProfile } from '@/data/mockData';
+import { useJobMatching } from '@/hooks/useJobMatching';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBubble, setSelectedBubble] = useState<CareerBubble | null>(null);
   const [hoveredBubble, setHoveredBubble] = useState<CareerBubble | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
+  const {
+    matches,
+    allMatches,
+    filters,
+    filterOptions,
+    isRefreshing,
+    loadMatches,
+    refreshMatches,
+    updateFilters,
+    resetFilters,
+  } = useJobMatching();
+
+  // Check auth and load matches
   useEffect(() => {
-    // Simulate loading time for data/graph preparation
-    const timer = setTimeout(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        await loadMatches();
+      }
       setIsLoading(false);
-    }, 1500);
+    };
+    
+    // Small delay for loading animation
+    const timer = setTimeout(checkAuth, 1000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [loadMatches]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -32,6 +61,33 @@ const Dashboard = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // Convert job matches to career bubbles for display
+  const enhancedBubbles = useMemo(() => {
+    if (matches.length === 0) return mockCareerBubbles;
+
+    // Create a map of match data by job title for quick lookup
+    const matchMap = new Map(matches.map(m => [m.job.title.toLowerCase(), m]));
+    
+    return mockCareerBubbles.map(bubble => {
+      const match = matchMap.get(bubble.name.toLowerCase());
+      if (match) {
+        return {
+          ...bubble,
+          fitScore: Math.round(match.weightedScore * 100),
+          matchedSkills: match.matchedSkills.length > 0 ? match.matchedSkills : bubble.matchedSkills,
+          missingSkills: match.missingSkills.length > 0 ? match.missingSkills : bubble.missingSkills,
+        };
+      }
+      return bubble;
+    });
+  }, [matches]);
+
+  // Get match data for selected bubble
+  const selectedMatchData = useMemo(() => {
+    if (!selectedBubble) return null;
+    return matches.find(m => m.job.title.toLowerCase() === selectedBubble.name.toLowerCase()) || null;
+  }, [selectedBubble, matches]);
+
   const handleBubbleClick = (bubble: CareerBubble) => {
     setSelectedBubble(bubble);
     setIsPanelOpen(true);
@@ -40,6 +96,12 @@ const Dashboard = () => {
   const handleClosePanel = () => {
     setIsPanelOpen(false);
     setTimeout(() => setSelectedBubble(null), 300);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({ title: 'Signed out', description: 'See you next time!' });
+    navigate('/');
   };
 
   // Loading screen
@@ -104,17 +166,45 @@ const Dashboard = () => {
                 className="bg-transparent border-none outline-none text-sm w-32"
               />
             </div>
+            <Button 
+              variant={showFilters ? "default" : "ghost"} 
+              size="icon" 
+              onClick={() => setShowFilters(!showFilters)}
+              className="relative"
+            >
+              <Filter className="w-4 h-4" />
+              {(filters.minScore > 0 || filters.jobType.length > 0 || filters.location.length > 0) && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full" />
+              )}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={refreshMatches}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </Button>
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
+              {allMatches.length > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
+              )}
             </Button>
             <Button variant="ghost" size="icon">
               <Settings className="w-4 h-4" />
             </Button>
             <div className="w-px h-5 bg-border mx-1" />
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center text-xs font-semibold text-background">
-                {mockUserProfile.name.split(' ').map(n => n[0]).join('')}
+              <div 
+                className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center text-xs font-semibold text-background cursor-pointer"
+                onClick={handleLogout}
+                title="Sign out"
+              >
+                {user?.user_metadata?.name 
+                  ? user.user_metadata.name.split(' ').map((n: string) => n[0]).join('')
+                  : mockUserProfile.name.split(' ').map(n => n[0]).join('')
+                }
               </div>
             </div>
           </>
@@ -123,6 +213,30 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-57px)]">
+        {/* Filters Sidebar */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.aside
+              className="w-72 border-r border-border p-4 overflow-y-auto"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 288, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <MatchFiltersPanel
+                filters={filters}
+                filterOptions={filterOptions}
+                onUpdateFilters={updateFilters}
+                onResetFilters={resetFilters}
+                onRefresh={refreshMatches}
+                isRefreshing={isRefreshing}
+                matchCount={matches.length}
+                totalCount={allMatches.length}
+              />
+            </motion.aside>
+          )}
+        </AnimatePresence>
+
         {/* Graph Area */}
         <main className="flex-1 relative bg-muted/20">
           <motion.div 
@@ -132,13 +246,25 @@ const Dashboard = () => {
             transition={{ duration: 0.4 }}
           >
             <CareerGraph 
-              bubbles={mockCareerBubbles}
+              bubbles={enhancedBubbles}
               onBubbleClick={handleBubbleClick}
               onBubbleHover={setHoveredBubble}
               timeMultiplier={1}
               selectedBubbleId={selectedBubble?.id}
             />
           </motion.div>
+
+          {/* Match count indicator */}
+          {allMatches.length > 0 && (
+            <motion.div
+              className="absolute top-4 left-4 surface-elevated rounded-lg px-3 py-2 text-xs"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <span className="text-muted-foreground">AI Matched: </span>
+              <span className="font-semibold text-primary">{allMatches.length} careers</span>
+            </motion.div>
+          )}
         </main>
 
         {/* Detail Panel - Integrated on the right */}
@@ -155,6 +281,7 @@ const Dashboard = () => {
                 bubble={selectedBubble}
                 onClose={handleClosePanel}
                 isExpanded={isPanelOpen}
+                matchData={selectedMatchData}
               />
             </motion.aside>
           )}
