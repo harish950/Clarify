@@ -269,7 +269,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
           transition={{ duration: 0.3, delay: 0.6 + index * 0.02, ease: "easeOut" }}
           whileHover={{ scale: 1.2, zIndex: 15 }}
         >
-          <div className="w-full h-full rounded-full bg-accent" />
+          <div className="w-full h-full rounded-full bg-bubble-warning/20 border border-bubble-warning/40" />
           <span 
             className={`absolute whitespace-nowrap text-graph-label font-medium text-[8px] top-1/2 -translate-y-1/2 opacity-70 ${
               skillNode.labelSide === 'right' ? 'left-full ml-1' : 'right-full mr-1 text-right'
