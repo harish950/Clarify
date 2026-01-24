@@ -1,15 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Search, Bell, Filter, RefreshCw, LogOut } from 'lucide-react';
+import { Settings, Search, Bell, Filter, RefreshCw, PanelLeftClose, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CareerGraph from '@/components/CareerGraph';
 import BubbleDetailPanel from '@/components/BubbleDetailPanel';
 import BubbleTooltip from '@/components/BubbleTooltip';
 import Header from '@/components/Header';
+import UserProfileDrawer from '@/components/UserProfileDrawer';
+import RoadmapDrawer from '@/components/RoadmapDrawer';
 import { MatchFiltersPanel } from '@/components/MatchFiltersPanel';
 import { CareerBubble } from '@/types/career';
+import { SavedPath } from '@/types/roadmap';
 import { mockCareerBubbles, mockUserProfile } from '@/data/mockData';
 import { useJobMatching } from '@/hooks/useJobMatching';
+import { useSavedPaths } from '@/hooks/useSavedPaths';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -23,7 +27,12 @@ const Dashboard = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showUserDrawer, setShowUserDrawer] = useState(true);
+  const [selectedPath, setSelectedPath] = useState<SavedPath | null>(null);
+  const [showRoadmapDrawer, setShowRoadmapDrawer] = useState(false);
   const [user, setUser] = useState<any>(null);
+
+  const { updateStepCompletion } = useSavedPaths();
 
   const {
     matches,
@@ -102,6 +111,27 @@ const Dashboard = () => {
     await supabase.auth.signOut();
     toast({ title: 'Signed out', description: 'See you next time!' });
     navigate('/');
+  };
+
+  const handlePathClick = (path: SavedPath) => {
+    setSelectedPath(path);
+    setShowRoadmapDrawer(true);
+  };
+
+  const handleRoadmapStepComplete = async (stepId: string) => {
+    if (!selectedPath) return;
+    await updateStepCompletion(selectedPath.id, stepId, true);
+    
+    // Update local state
+    setSelectedPath(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        roadmap: prev.roadmap.map(step =>
+          step.id === stepId ? { ...step, completed: true } : step
+        )
+      };
+    });
   };
 
   // Loading screen
@@ -213,6 +243,24 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-57px)]">
+        {/* User Profile Drawer - Left Side */}
+        <AnimatePresence>
+          {showUserDrawer && (
+            <motion.aside
+              className="w-72 border-r border-border hidden md:block"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 288, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <UserProfileDrawer 
+                user={user}
+                onPathClick={handlePathClick}
+              />
+            </motion.aside>
+          )}
+        </AnimatePresence>
+
         {/* Filters Sidebar */}
         <AnimatePresence>
           {showFilters && (
@@ -239,6 +287,21 @@ const Dashboard = () => {
 
         {/* Graph Area */}
         <main className="flex-1 relative bg-muted/20">
+          {/* Toggle User Drawer Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 left-4 z-10 surface-elevated"
+            onClick={() => setShowUserDrawer(!showUserDrawer)}
+            title={showUserDrawer ? 'Hide profile' : 'Show profile'}
+          >
+            {showUserDrawer ? (
+              <PanelLeftClose className="w-4 h-4" />
+            ) : (
+              <PanelLeft className="w-4 h-4" />
+            )}
+          </Button>
+
           <motion.div 
             className="h-full"
             initial={{ opacity: 0 }}
@@ -257,7 +320,7 @@ const Dashboard = () => {
           {/* Match count indicator */}
           {allMatches.length > 0 && (
             <motion.div
-              className="absolute top-4 left-4 surface-elevated rounded-lg px-3 py-2 text-xs"
+              className="absolute top-4 right-4 surface-elevated rounded-lg px-3 py-2 text-xs"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -287,6 +350,15 @@ const Dashboard = () => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Roadmap Drawer for viewing saved paths */}
+      <RoadmapDrawer
+        open={showRoadmapDrawer}
+        onOpenChange={setShowRoadmapDrawer}
+        careerName={selectedPath?.career_name || ''}
+        roadmap={selectedPath?.roadmap || []}
+        onStepComplete={handleRoadmapStepComplete}
+      />
 
       {/* Tooltip */}
       <AnimatePresence>
