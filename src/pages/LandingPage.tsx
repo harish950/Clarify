@@ -2,6 +2,8 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BarChart3, Target, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import LandingGraphPreview from '@/components/LandingGraphPreview';
+
 const LandingPage = () => {
   return <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -123,7 +125,7 @@ const LandingPage = () => {
         </motion.div>
 
         {/* Preview */}
-        <motion.div className="mt-24 max-w-4xl mx-auto" initial={{
+        <motion.div className="mt-24 max-w-5xl mx-auto" initial={{
         opacity: 0,
         scale: 0.98
       }} animate={{
@@ -133,71 +135,9 @@ const LandingPage = () => {
         duration: 0.6,
         delay: 0.7
       }}>
-          <div className="surface-elevated rounded-2xl p-6 relative overflow-hidden">
-            <div className="aspect-[16/10] bg-muted/50 rounded-xl flex items-center justify-center relative">
-              {/* Mini visualization */}
-              <div className="relative">
-                {/* Center node */}
-                <div className="w-16 h-16 rounded-full bg-foreground flex items-center justify-center z-10 relative shadow-lg">
-                  <span className="font-bold text-background text-sm">YOU</span>
-                </div>
-
-                {/* Orbiting bubbles */}
-                {[{
-                name: 'SWE',
-                color: 'bg-primary',
-                x: -100,
-                y: -60
-              }, {
-                name: 'PM',
-                color: 'bg-accent',
-                x: 100,
-                y: -40
-              }, {
-                name: 'DS',
-                color: 'bg-bubble-data',
-                x: -80,
-                y: 80
-              }, {
-                name: 'UX',
-                color: 'bg-bubble-design',
-                x: 110,
-                y: 60
-              }].map((bubble, i) => <motion.div key={bubble.name} className={`absolute w-12 h-12 rounded-full ${bubble.color} flex items-center justify-center shadow-md`} style={{
-                left: `calc(50% + ${bubble.x}px - 24px)`,
-                top: `calc(50% + ${bubble.y}px - 24px)`
-              }} initial={{
-                scale: 0
-              }} animate={{
-                scale: 1
-              }} transition={{
-                delay: 1 + i * 0.1
-              }}>
-                    <span className="text-white text-xs font-semibold">{bubble.name}</span>
-                  </motion.div>)}
-
-                {/* Connection lines */}
-                <svg className="absolute inset-0 w-full h-full" style={{
-                left: -120,
-                top: -100,
-                width: 300,
-                height: 240
-              }}>
-                  {[{
-                  x: 50,
-                  y: 60
-                }, {
-                  x: 250,
-                  y: 80
-                }, {
-                  x: 70,
-                  y: 200
-                }, {
-                  x: 260,
-                  y: 180
-                }].map((pos, i) => <line key={i} x1="150" y1="120" x2={pos.x} y2={pos.y} stroke="hsl(var(--border))" strokeWidth="1.5" strokeDasharray="4 4" />)}
-                </svg>
-              </div>
+          <div className="rounded-2xl overflow-hidden shadow-2xl border border-border">
+            <div className="aspect-[16/9]">
+              <LandingGraphPreview />
             </div>
           </div>
         </motion.div>

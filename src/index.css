@@ -44,6 +44,13 @@
     --bubble-success: 150 70% 45%;
     --bubble-warning: 35 90% 55%;
 
+    /* Graph colors */
+    --graph-bg: 230 25% 12%;
+    --graph-node: 250 60% 65%;
+    --graph-node-main: 250 60% 65%;
+    --graph-edge: 250 40% 50%;
+    --graph-label: 230 20% 85%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 220 15% 15%;
     --sidebar-primary: 220 90% 56%;

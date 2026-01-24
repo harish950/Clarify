@@ -68,6 +68,13 @@ export default {
           success: "hsl(var(--bubble-success))",
           warning: "hsl(var(--bubble-warning))",
         },
+        graph: {
+          bg: "hsl(var(--graph-bg))",
+          node: "hsl(var(--graph-node))",
+          "node-main": "hsl(var(--graph-node-main))",
+          edge: "hsl(var(--graph-edge))",
+          label: "hsl(var(--graph-label))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
