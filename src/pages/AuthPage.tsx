@@ -72,9 +72,9 @@ const AuthPage = () => {
       {/* Logo */}
       <Link to="/" className="absolute top-6 left-6 flex items-center gap-2">
         <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-          <span className="text-primary-foreground font-bold text-sm">CN</span>
+          <span className="text-primary-foreground font-bold text-sm">C</span>
         </div>
-        <span className="text-lg font-semibold">Career Nebula</span>
+        <span className="text-lg font-semibold">Clarity</span>
       </Link>
 
       {/* Auth Card */}

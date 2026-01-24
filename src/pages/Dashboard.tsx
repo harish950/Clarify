@@ -43,9 +43,9 @@ const Dashboard = () => {
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xs">CN</span>
+              <span className="text-primary-foreground font-bold text-xs">C</span>
             </div>
-            <span className="font-semibold hidden sm:block">Career Nebula</span>
+            <span className="font-semibold hidden sm:block">Clarity</span>
           </Link>
         </div>
 
