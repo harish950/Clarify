@@ -302,8 +302,16 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         <defs>
           <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="1" result="blur" />
+            <feGaussianBlur stdDeviation="2" result="blur" />
             <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="glow-strong" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
@@ -311,26 +319,32 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
         </defs>
         
         {/* Lines from You to Jobs */}
-        {jobNodes.map((jobNode, index) => (
-          <motion.line
-            key={`line-you-${jobNode.job.id}`}
-            x1={centerX + viewOffset.x}
-            y1={centerY + viewOffset.y}
-            x2={jobNode.x}
-            y2={jobNode.y}
-            stroke="hsl(var(--graph-edge))"
-            strokeWidth={2.5}
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: jobNode.job.unlocked ? 0.7 : 0.25 }}
-            transition={{ duration: 0.6, delay: 0.2 + index * 0.05 }}
-          />
-        ))}
+        {jobNodes.map((jobNode, index) => {
+          const isSelected = selectedBubbleId === jobNode.job.id;
+          return (
+            <motion.line
+              key={`line-you-${jobNode.job.id}`}
+              x1={centerX + viewOffset.x}
+              y1={centerY + viewOffset.y}
+              x2={jobNode.x}
+              y2={jobNode.y}
+              stroke={isSelected ? "hsl(var(--primary))" : "hsl(var(--graph-edge))"}
+              strokeWidth={isSelected ? 3.5 : 2.5}
+              filter={isSelected ? "url(#glow-strong)" : undefined}
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: isSelected ? 1 : jobNode.job.unlocked ? 0.7 : 0.25 }}
+              transition={{ duration: 0.6, delay: 0.2 + index * 0.05 }}
+            />
+          );
+        })}
         
         {/* Lines from Jobs to Skills */}
         {skillNodes.map((skillNode) =>
           skillNode.connectedJobs.map((jobId) => {
             const jobNode = jobNodes.find(j => j.job.id === jobId);
             if (!jobNode) return null;
+            
+            const isConnectedToSelected = selectedBubbleId === jobId;
             
             return (
               <motion.line
@@ -339,11 +353,12 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
                 y1={jobNode.y}
                 x2={skillNode.x}
                 y2={skillNode.y}
-                stroke="hsl(var(--graph-edge))"
-                strokeWidth={1}
+                stroke={isConnectedToSelected ? "hsl(var(--primary))" : "hsl(var(--graph-edge))"}
+                strokeWidth={isConnectedToSelected ? 2 : 1}
                 strokeDasharray="4 3"
+                filter={isConnectedToSelected ? "url(#glow)" : undefined}
                 initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 0.4 }}
+                animate={{ pathLength: 1, opacity: isConnectedToSelected ? 0.9 : 0.4 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
               />
             );
