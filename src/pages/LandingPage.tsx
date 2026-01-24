@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BarChart3, Target, Zap, Users, Sparkles, TrendingUp, CheckCircle } from 'lucide-react';
+import { ArrowRight, BarChart3, Target, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import LandingGraphPreview from '@/components/LandingGraphPreview';
 import Header from '@/components/Header';
@@ -102,53 +102,6 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
-
-        {/* Stats Section */}
-        <section className="py-16 px-6 bg-white/5">
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              <StatItem value="50+" label="Career paths" icon={<TrendingUp className="w-4 h-4" />} />
-              <StatItem value="200+" label="Skills tracked" icon={<Sparkles className="w-4 h-4" />} />
-              <StatItem value="10k+" label="Users exploring" icon={<Users className="w-4 h-4" />} />
-              <StatItem value="85%" label="Find clarity" icon={<CheckCircle className="w-4 h-4" />} />
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Testimonial Section */}
-        <section className="py-20 px-6">
-          <div className="max-w-3xl mx-auto">
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="mb-8">
-                <p className="text-xl md:text-2xl text-white/90 italic leading-relaxed">
-                  "I graduated with no idea what to do. Clarity showed me how my random skills actually connect to real careers I'd never considered."
-                </p>
-              </div>
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-graph-node/30 flex items-center justify-center text-sm font-semibold text-white">
-                  JL
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-white">Jamie L.</p>
-                  <p className="text-xs text-graph-label/60">Recent Graduate, now Product Designer</p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
         {/* Final CTA Section */}
         <section className="py-20 px-6 border-t border-white/10">
           <motion.div
@@ -201,22 +154,6 @@ const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
     </div>
     <h3 className="font-semibold mb-1 text-white">{title}</h3>
     <p className="text-sm text-graph-label/70">{description}</p>
-  </div>
-);
-
-interface StatItemProps {
-  value: string;
-  label: string;
-  icon: React.ReactNode;
-}
-
-const StatItem = ({ value, label, icon }: StatItemProps) => (
-  <div>
-    <div className="flex items-center justify-center gap-1.5 text-graph-node mb-1">
-      {icon}
-      <span className="text-2xl md:text-3xl font-bold text-white">{value}</span>
-    </div>
-    <p className="text-sm text-graph-label/70">{label}</p>
   </div>
 );
 
