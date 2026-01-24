@@ -7,7 +7,7 @@ import LandingGraphPreview from '@/components/LandingGraphPreview';
 const LandingPage = () => {
   return <div className="min-h-screen bg-graph-bg text-graph-label">
       {/* Navigation */}
-      <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
+      <nav className="flex items-center justify-between px-8 py-4 lg:px-16">
         <motion.div className="flex items-center gap-2" initial={{
         opacity: 0,
         x: -20
