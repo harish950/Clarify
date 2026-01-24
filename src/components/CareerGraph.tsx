@@ -120,11 +120,15 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
       };
     });
 
-    // Get skills that connect to visible jobs
+    // Get skills that connect to visible jobs - limit each skill to ONE primary job
     const visibleJobIds = bubbles.map(b => b.id);
-    const relevantSkills = mockSkills.filter(skill => 
-      skill.jobs.some(jobId => visibleJobIds.includes(jobId))
-    );
+    const relevantSkills = mockSkills
+      .filter(skill => skill.jobs.some(jobId => visibleJobIds.includes(jobId)))
+      .map(skill => ({
+        ...skill,
+        // Only keep the first matching job to reduce connections
+        jobs: [skill.jobs.find(jobId => visibleJobIds.includes(jobId))!]
+      }));
 
     // Position skills - place them around jobs with better spacing
     const placedSkills: { x: number; y: number; size: number }[] = [];
@@ -156,7 +160,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
       let finalX = 0;
       let finalY = 0;
       let attempts = 0;
-      const nodeSize = 14 + connectedJobNodes.length * 2;
+      const nodeSize = 12 + connectedJobNodes.length * 2;
       const minSpacing = nodeSize + 50; // Account for label width
       
       while (attempts < 12) {
