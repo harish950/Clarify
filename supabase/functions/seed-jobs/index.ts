@@ -205,6 +205,25 @@ serve(async (req) => {
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
+    // Check if jobs already exist - skip seeding if so
+    const { count, error: countError } = await supabase
+      .from('jobs')
+      .select('*', { count: 'exact', head: true });
+    
+    if (countError) {
+      console.error('Error checking existing jobs:', countError);
+    } else if (count && count > 0) {
+      console.log(`Jobs already exist (${count} found), skipping seed`);
+      return new Response(JSON.stringify({ 
+        success: true,
+        message: 'Jobs already seeded',
+        skipped: true,
+        existingCount: count
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     console.log('Starting job seeding...');
 
     const results = [];
@@ -250,7 +269,7 @@ serve(async (req) => {
       }
 
       // Small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 200));
     }
 
     console.log('Job seeding completed');

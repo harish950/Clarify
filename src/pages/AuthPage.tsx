@@ -84,7 +84,7 @@ const AuthPage = () => {
         }
         
         navigate('/dashboard');
-      } catch (err) {
+      } catch {
         toast({
           title: 'Error',
           description: 'An unexpected error occurred',
@@ -105,15 +105,36 @@ const AuthPage = () => {
       setIsSubmitting(true);
       try {
         // Sign up user
+        const redirectUrl = `${window.location.origin}/dashboard`;
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
+            emailRedirectTo: redirectUrl,
             data: {
               name: formData.name,
             },
           },
         });
+        
+        // Wait for session to be established
+        if (authData?.user && !authData.session) {
+          // Email confirmation might be required - but we have auto-confirm enabled
+          // Give it a moment for session to establish
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        // Verify we have a session before proceeding
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) {
+          toast({
+            title: 'Account Created',
+            description: 'Please check your email to confirm your account, then log in.',
+          });
+          setMode('login');
+          setIsSubmitting(false);
+          return;
+        }
         
         if (signUpError) {
           toast({
@@ -129,8 +150,8 @@ const AuthPage = () => {
           description: 'Generating your career matches...',
         });
 
-        // Seed jobs first (if not already done)
-        await seedJobs();
+        // Seed jobs in background (don't wait for it)
+        seedJobs().catch(err => console.warn('Seed jobs background error:', err));
 
         // Generate embeddings for the user profile
         const profileData = {
