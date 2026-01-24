@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -5,38 +6,42 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Job } from '@/data/jobsData';
-import { MapPin, Building2, Briefcase, DollarSign, ExternalLink, Check } from 'lucide-react';
+import { MapPin, Building2, Briefcase, DollarSign, Check, Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+
+export interface JobListing {
+  id: string;
+  title: string;
+  company: string | null;
+  location: string | null;
+  salary?: string | null;
+  description?: string | null;
+  job_type?: string | null;
+}
 
 interface JobsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  jobs: Job[];
+  jobs: JobListing[];
   careerName: string;
   onApplyToJob?: (jobId: string) => Promise<boolean>;
   isJobApplied?: (jobId: string) => boolean;
 }
 
 const JobsDialog = ({ open, onOpenChange, jobs, careerName, onApplyToJob, isJobApplied }: JobsDialogProps) => {
-  const handleApply = async (job: Job, index: number) => {
-    // First, open the external link
-    if (job.url) {
-      window.open(job.url, '_blank');
-    }
+  const [applyingJobId, setApplyingJobId] = useState<string | null>(null);
+
+  const handleApply = async (job: JobListing) => {
+    if (!onApplyToJob) return;
     
-    // Track application using a synthetic ID based on career and index
-    // In a real app, jobs would have database IDs
-    if (onApplyToJob) {
-      const syntheticId = `${careerName.toLowerCase().replace(/\s+/g, '-')}-${index}`;
-      await onApplyToJob(syntheticId);
-    }
+    setApplyingJobId(job.id);
+    await onApplyToJob(job.id);
+    setApplyingJobId(null);
   };
 
-  const checkIfApplied = (job: Job, index: number): boolean => {
+  const checkIfApplied = (job: JobListing): boolean => {
     if (!isJobApplied) return false;
-    const syntheticId = `${careerName.toLowerCase().replace(/\s+/g, '-')}-${index}`;
-    return isJobApplied(syntheticId);
+    return isJobApplied(job.id);
   };
 
   return (
@@ -60,27 +65,32 @@ const JobsDialog = ({ open, onOpenChange, jobs, careerName, onApplyToJob, isJobA
             </div>
           ) : (
             <div className="space-y-4">
-              {jobs.map((job, index) => {
-                const applied = checkIfApplied(job, index);
+              {jobs.map((job) => {
+                const applied = checkIfApplied(job);
+                const isApplying = applyingJobId === job.id;
                 
                 return (
                   <div
-                    key={`job-${index}`}
+                    key={job.id}
                     className="surface-elevated rounded-xl p-4 border border-border hover:border-primary/50 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-base truncate">{job.job_title}</h3>
+                        <h3 className="font-semibold text-base truncate">{job.title}</h3>
                         
                         <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Building2 className="w-3.5 h-3.5" />
-                            {job.company}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" />
-                            {job.location}
-                          </span>
+                          {job.company && (
+                            <span className="flex items-center gap-1">
+                              <Building2 className="w-3.5 h-3.5" />
+                              {job.company}
+                            </span>
+                          )}
+                          {job.location && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" />
+                              {job.location}
+                            </span>
+                          )}
                           {job.job_type && (
                             <span className="flex items-center gap-1">
                               <Briefcase className="w-3.5 h-3.5" />
@@ -96,9 +106,11 @@ const JobsDialog = ({ open, onOpenChange, jobs, careerName, onApplyToJob, isJobA
                           </div>
                         )}
                         
-                        <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
-                          {job.description}
-                        </p>
+                        {job.description && (
+                          <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
+                            {job.description}
+                          </p>
+                        )}
                       </div>
                       
                       {applied ? (
@@ -114,12 +126,17 @@ const JobsDialog = ({ open, onOpenChange, jobs, careerName, onApplyToJob, isJobA
                       ) : (
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="default"
                           className="shrink-0 gap-1.5"
-                          onClick={() => handleApply(job, index)}
+                          onClick={() => handleApply(job)}
+                          disabled={isApplying}
                         >
-                          Apply
-                          <ExternalLink className="w-3.5 h-3.5" />
+                          {isApplying ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Check className="w-3.5 h-3.5" />
+                          )}
+                          {isApplying ? 'Applying...' : 'Apply'}
                         </Button>
                       )}
                     </div>

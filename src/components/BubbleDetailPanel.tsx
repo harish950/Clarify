@@ -6,12 +6,12 @@ import { RoadmapStep } from '@/types/roadmap';
 import { TrendingUp, Clock, DollarSign, AlertCircle, CheckCircle, X, Rocket, Eye, Target, Zap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { getJobsForCareer } from '@/data/jobsData';
-import JobsDialog from './JobsDialog';
+import JobsDialog, { JobListing } from './JobsDialog';
 import { MatchExplainability } from './MatchExplainability';
 import RoadmapDrawer from './RoadmapDrawer';
 import { useSavedPaths } from '@/hooks/useSavedPaths';
 import { useAppliedJobs } from '@/hooks/useAppliedJobs';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BubbleDetailPanelProps {
   bubble: CareerBubble | null;
@@ -25,13 +25,41 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded, matchData }: BubbleDet
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [currentRoadmap, setCurrentRoadmap] = useState<RoadmapStep[]>([]);
   const [currentPathId, setCurrentPathId] = useState<string | null>(null);
+  const [jobs, setJobs] = useState<JobListing[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(false);
   
   const { isLoading, startPath, updateStepCompletion, getSavedPath } = useSavedPaths();
   const { applyToJob, isJobApplied } = useAppliedJobs();
   
+  // Fetch jobs from database when bubble changes
+  useEffect(() => {
+    const fetchJobs = async () => {
+      if (!bubble) return;
+      
+      setJobsLoading(true);
+      try {
+        // Search for jobs matching the career name
+        const { data, error } = await supabase
+          .from('jobs')
+          .select('id, title, company, location, salary, description, job_type')
+          .ilike('title', `%${bubble.name.split(' ')[0]}%`)
+          .limit(10);
+        
+        if (error) throw error;
+        setJobs(data || []);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+        setJobs([]);
+      } finally {
+        setJobsLoading(false);
+      }
+    };
+    
+    fetchJobs();
+  }, [bubble?.id]);
+  
   if (!bubble) return null;
   
-  const jobs = getJobsForCareer(bubble.id);
   const hasMatchData = matchData && matchData.weightedScore > 0;
   
   // Get missing and matched skills for roadmap generation
