@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CareerBubble } from '@/types/career';
-import { TrendingUp, Clock, DollarSign, AlertCircle, CheckCircle, X, Rocket, ExternalLink } from 'lucide-react';
+import { TrendingUp, Clock, DollarSign, AlertCircle, CheckCircle, X, Rocket, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getJobsForCareer } from '@/data/jobsData';
+import JobsDialog from './JobsDialog';
 
 interface BubbleDetailPanelProps {
   bubble: CareerBubble | null;
@@ -10,7 +13,11 @@ interface BubbleDetailPanelProps {
 }
 
 const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelProps) => {
+  const [showJobs, setShowJobs] = useState(false);
+  
   if (!bubble) return null;
+  
+  const jobs = getJobsForCareer(bubble.id);
 
   return (
     <motion.div
@@ -146,11 +153,19 @@ const BubbleDetailPanel = ({ bubble, onClose, isExpanded }: BubbleDetailPanelPro
             <Rocket className="w-4 h-4" />
             Start This Path
           </Button>
-          <Button variant="outline" className="w-full gap-2">
-            <ExternalLink className="w-4 h-4" />
-            Apply for Jobs
+          <Button variant="outline" className="w-full gap-2" onClick={() => setShowJobs(true)}>
+            <Eye className="w-4 h-4" />
+            View Jobs
           </Button>
         </div>
+        
+        {/* Jobs Dialog */}
+        <JobsDialog
+          open={showJobs}
+          onOpenChange={setShowJobs}
+          jobs={jobs}
+          careerName={bubble.name}
+        />
       </div>
     </motion.div>
   );
