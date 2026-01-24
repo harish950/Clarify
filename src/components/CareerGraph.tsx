@@ -122,13 +122,20 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
 
     // Get skills that connect to visible jobs - limit each skill to max 2 jobs
     const visibleJobIds = bubbles.map(b => b.id);
-    const relevantSkills = mockSkills
+    const userSkillNames = mockUserProfile.skills.map(s => s.toLowerCase());
+    
+    // Prioritize acquired skills, limit non-acquired skills
+    const allRelevantSkills = mockSkills
       .filter(skill => skill.jobs.some(jobId => visibleJobIds.includes(jobId)))
       .map(skill => ({
         ...skill,
-        // Keep up to 2 matching jobs
+        isAcquired: userSkillNames.includes(skill.name.toLowerCase()),
         jobs: skill.jobs.filter(jobId => visibleJobIds.includes(jobId)).slice(0, 2)
       }));
+    
+    const acquiredSkills = allRelevantSkills.filter(s => s.isAcquired);
+    const missingSkills = allRelevantSkills.filter(s => !s.isAcquired).slice(0, 6); // Limit missing skills to 6
+    const relevantSkills = [...acquiredSkills, ...missingSkills];
 
     // Position skills - place them around jobs with better spacing
     const placedSkills: { x: number; y: number; size: number }[] = [];
