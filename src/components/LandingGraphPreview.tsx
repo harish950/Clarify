@@ -149,22 +149,6 @@ const LandingGraphPreview = () => {
       ref={containerRef}
       className="relative w-full h-full overflow-hidden bg-graph-bg rounded-xl"
     >
-      {/* Background dots */}
-      <svg className="absolute inset-0 w-full h-full">
-        {backgroundDots.map((dot, i) => (
-          <motion.circle
-            key={`dot-${i}`}
-            cx={dot.x}
-            cy={dot.y}
-            r={dot.size}
-            fill="hsl(var(--graph-node))"
-            opacity={dot.opacity}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: dot.opacity }}
-            transition={{ duration: 0.5, delay: i * 0.01 }}
-          />
-        ))}
-      </svg>
 
       {/* Edge lines */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
