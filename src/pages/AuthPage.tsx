@@ -444,8 +444,8 @@ const AuthPage = () => {
                             }))}
                             className={`px-3 py-1.5 rounded-full text-sm transition-all border ${
                               formData.helpWith.includes(help)
-                                ? 'bg-accent text-accent-foreground border-accent'
-                                : 'bg-background text-muted-foreground border-border hover:border-accent/50'
+                                ? 'bg-primary text-primary-foreground border-primary'
+                                : 'bg-background text-muted-foreground border-border hover:border-primary/50'
                             }`}
                           >
                             {help}
