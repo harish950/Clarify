@@ -5,8 +5,6 @@ import { Button } from '@/components/ui/button';
 import CareerGraph from '@/components/CareerGraph';
 import BubbleDetailPanel from '@/components/BubbleDetailPanel';
 import BubbleTooltip from '@/components/BubbleTooltip';
-import TimeSlider from '@/components/TimeSlider';
-import UserStats from '@/components/UserStats';
 import Header from '@/components/Header';
 import { CareerBubble } from '@/types/career';
 import { mockCareerBubbles, mockUserProfile } from '@/data/mockData';
@@ -15,7 +13,6 @@ const Dashboard = () => {
   const [selectedBubble, setSelectedBubble] = useState<CareerBubble | null>(null);
   const [hoveredBubble, setHoveredBubble] = useState<CareerBubble | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [timeProjection, setTimeProjection] = useState(1);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   useEffect(() => {
@@ -69,45 +66,8 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-57px)]">
-        {/* Sidebar */}
-        <aside className="w-72 p-4 border-r border-border hidden lg:block overflow-y-auto bg-card">
-          <div className="space-y-4">
-            <UserStats 
-              level={mockUserProfile.currentLevel}
-              xp={mockUserProfile.xp}
-              completedQuests={mockUserProfile.completedQuests.length}
-              totalQuests={10}
-            />
-
-            <TimeSlider 
-              value={timeProjection}
-              onChange={setTimeProjection}
-            />
-
-            <div className="surface-elevated rounded-xl p-4">
-              <h3 className="text-sm font-semibold mb-3">Sectors</h3>
-              <div className="space-y-2">
-                {Array.from(new Set(mockCareerBubbles.map(b => b.sector))).map(sector => {
-                  const colors: Record<string, string> = {
-                    'Technology': 'bg-primary',
-                    'Data & AI': 'bg-accent',
-                    'Business': 'bg-bubble-business',
-                    'Design': 'bg-bubble-design',
-                  };
-                  return (
-                    <div key={sector} className="flex items-center gap-2">
-                      <div className={`w-2.5 h-2.5 rounded-full ${colors[sector] || 'bg-primary'}`} />
-                      <span className="text-sm text-muted-foreground">{sector}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </aside>
-
         {/* Graph Area */}
-        <main className="flex-1 p-4 relative bg-muted/20">
+        <main className="flex-1 relative bg-muted/20">
           <motion.div 
             className="h-full"
             initial={{ opacity: 0 }}
@@ -118,18 +78,10 @@ const Dashboard = () => {
               bubbles={mockCareerBubbles}
               onBubbleClick={handleBubbleClick}
               onBubbleHover={setHoveredBubble}
-              timeMultiplier={timeProjection}
+              timeMultiplier={1}
               selectedBubbleId={selectedBubble?.id}
             />
           </motion.div>
-
-          {/* Mobile Time Slider */}
-          <div className="absolute bottom-4 left-4 right-4 lg:hidden">
-            <TimeSlider 
-              value={timeProjection}
-              onChange={setTimeProjection}
-            />
-          </div>
         </main>
 
         {/* Detail Panel - Integrated on the right */}
