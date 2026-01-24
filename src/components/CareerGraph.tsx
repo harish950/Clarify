@@ -99,20 +99,16 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-full overflow-hidden bg-muted/30 rounded-2xl border border-border"
+      className="relative w-full h-full overflow-hidden bg-graph-bg rounded-2xl"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Grid pattern background */}
-      <svg className="absolute inset-0 w-full h-full opacity-[0.03]">
-        <defs>
-          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-      </svg>
+      {/* Edge blur overlays */}
+      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-graph-bg via-graph-bg/60 to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-graph-bg via-graph-bg/60 to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-graph-bg to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-graph-bg to-transparent z-[5] pointer-events-none" />
 
       {/* Connection lines */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
@@ -126,9 +122,8 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
               y1={centerY + userPosition.y}
               x2={pos.x}
               y2={pos.y}
-              stroke="hsl(var(--border))"
+              stroke="hsl(var(--graph-edge))"
               strokeWidth="1.5"
-              strokeDasharray="6 4"
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: 0.6 }}
               transition={{ duration: 0.8, delay: index * 0.05 }}
@@ -144,9 +139,9 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
             cy={centerY + userPosition.y}
             r={Math.min(dimensions.width, dimensions.height) * 0.35 * radius}
             fill="none"
-            stroke="hsl(var(--border))"
+            stroke="hsl(var(--graph-edge))"
             strokeWidth="1"
-            opacity="0.3"
+            opacity="0.25"
           />
         ))}
       </svg>
@@ -156,7 +151,6 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
         const pos = getBubblePosition(bubble, index);
         const size = getBubbleSize(bubble);
         const isLocked = !bubble.unlocked;
-        const bubbleColor = getBubbleColor(bubble.sector);
 
         return (
           <motion.div
@@ -178,22 +172,17 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
             onMouseLeave={() => onBubbleHover(null)}
           >
             <div 
-              className="w-full h-full rounded-full flex items-center justify-center relative shadow-lg border-2 border-background transition-shadow hover:shadow-xl"
-              style={{ backgroundColor: bubbleColor }}
+              className="w-full h-full rounded-full bg-graph-node flex items-center justify-center relative"
             >
-              <div className="text-center px-1">
-                <span className="font-semibold text-white text-xs leading-tight block drop-shadow-sm">
-                  {bubble.name.split(' ')[0]}
-                </span>
-                {size > 60 && (
-                  <span className="text-white/90 text-[10px] font-medium">
-                    {bubble.fitScore}%
-                  </span>
-                )}
-              </div>
+              {/* Label positioned outside */}
+              <span 
+                className="absolute left-full ml-2 whitespace-nowrap text-graph-label font-medium text-xs"
+              >
+                {bubble.name.split(' ')[0]}
+              </span>
 
               {isLocked && (
-                <div className="absolute inset-0 rounded-full flex items-center justify-center bg-background/60 backdrop-blur-sm">
+                <div className="absolute inset-0 rounded-full flex items-center justify-center bg-graph-bg/60 backdrop-blur-sm">
                   <span className="text-sm">🔒</span>
                 </div>
               )}
@@ -206,29 +195,32 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
       <motion.div
         className={`absolute z-20 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{
-          left: centerX + userPosition.x - 44,
-          top: centerY + userPosition.y - 44,
-          width: 88,
-          height: 88,
+          left: centerX + userPosition.x - 28,
+          top: centerY + userPosition.y - 28,
+          width: 56,
+          height: 56,
         }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.98 }}
         onMouseDown={handleMouseDown}
       >
-        <div className="w-full h-full rounded-full bg-foreground flex items-center justify-center shadow-xl border-4 border-background">
-          <span className="font-bold text-lg text-background tracking-tight">YOU</span>
+        <div className="w-full h-full rounded-full bg-graph-node-main flex items-center justify-center">
+          <span className="font-bold text-sm text-white tracking-tight">You</span>
         </div>
+        <span className="absolute left-full ml-3 whitespace-nowrap text-graph-label font-bold text-sm top-1/2 -translate-y-1/2">
+          You
+        </span>
       </motion.div>
 
       {/* Drag hint */}
       {!isDragging && userPosition.x === 0 && userPosition.y === 0 && (
         <motion.div 
-          className="absolute left-1/2 bottom-6 -translate-x-1/2 text-xs text-muted-foreground bg-card px-4 py-2 rounded-full border border-border shadow-sm"
+          className="absolute left-1/2 bottom-6 -translate-x-1/2 text-xs text-graph-label/70 bg-graph-bg/80 backdrop-blur-sm px-4 py-2 rounded-full border border-graph-edge/30"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
         >
-          Drag "YOU" to explore different paths
+          Drag "You" to explore different paths
         </motion.div>
       )}
     </div>
