@@ -115,7 +115,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
         job,
         x,
         y,
-        size: 28 + (job.fitScore / 100) * 12,
+        size: 80 + (job.fitScore / 100) * 30, // Bigger bubbles: 80-110px
         labelSide: x > centerX + viewOffset.x ? 'right' : 'left'
       };
     });
@@ -289,11 +289,11 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
             }}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ 
-              scale: isSelected ? 1.3 : 1, 
+              scale: isSelected ? 1.15 : 1, 
               opacity: isLocked ? 0.3 : 1 
             }}
             transition={{ duration: 0.4, delay: 0.25 + index * 0.05, ease: "easeOut" }}
-            whileHover={!isLocked && !isSelected ? { scale: 1.15, zIndex: 15 } : undefined}
+            whileHover={!isLocked && !isSelected ? { scale: 1.08, zIndex: 15 } : undefined}
             onClick={(e) => {
               e.stopPropagation();
               if (!isLocked) {
@@ -309,25 +309,28 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
             onMouseEnter={() => !isLocked && onBubbleHover(jobNode.job)}
             onMouseLeave={() => onBubbleHover(null)}
           >
-            <div className={`w-full h-full rounded-full transition-all duration-300 ${
+            <div className={`w-full h-full rounded-full flex items-center justify-center p-2 transition-all duration-300 ${
               isSelected 
                 ? 'bg-primary ring-4 ring-primary/30 shadow-lg shadow-primary/25' 
-                : 'bg-graph-node-main/80'
-            }`} />
-            <span 
-              className={`absolute whitespace-nowrap font-semibold top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                isSelected 
-                  ? 'text-primary text-xs' 
-                  : 'text-graph-label text-[10px]'
-              } ${
-                jobNode.labelSide === 'right' ? 'left-full ml-2' : 'right-full mr-2 text-right'
-              }`}
-            >
-              {jobNode.job.name}
-            </span>
+                : 'bg-graph-node-main/90 hover:bg-graph-node-main'
+            }`}>
+              <span 
+                className={`text-center font-semibold leading-tight transition-all duration-300 ${
+                  isSelected 
+                    ? 'text-primary-foreground text-xs' 
+                    : 'text-graph-bg text-[10px]'
+                }`}
+                style={{
+                  wordBreak: 'break-word',
+                  hyphens: 'auto',
+                }}
+              >
+                {jobNode.job.name}
+              </span>
+            </div>
             {isLocked && (
               <div className="absolute inset-0 rounded-full flex items-center justify-center bg-graph-bg/50">
-                <span className="text-[10px]">🔒</span>
+                <span className="text-sm">🔒</span>
               </div>
             )}
           </motion.div>
