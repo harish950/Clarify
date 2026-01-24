@@ -175,8 +175,17 @@ const LandingGraphPreview = () => {
         </motion.p>
       </div>
 
-      {/* Edge lines */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+      {/* Edge lines - rendered in same coordinate space as nodes */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ left: 0, top: 0 }}>
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
         {edges.map((edge, i) => {
           const fromNode = getNodeById(edge.from);
           const toNode = getNodeById(edge.to);
