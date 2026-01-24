@@ -102,7 +102,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
 
   // Position jobs around the center and skills around jobs
   const { jobNodes, skillNodes } = useMemo(() => {
-    const jobRadius = Math.min(dimensions.width, dimensions.height) * 0.28;
+    const jobRadius = Math.min(dimensions.width, dimensions.height) * 0.22;
     const skillRadius = 90;
     
     // Position jobs evenly around center
@@ -115,7 +115,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
         job,
         x,
         y,
-        size: 28 + (job.fitScore / 100) * 12,
+        size: 34 + (job.fitScore / 100) * 14,
         labelSide: x > centerX + viewOffset.x ? 'right' : 'left'
       };
     });
@@ -298,7 +298,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
               e.stopPropagation();
               if (!isLocked) {
                 // Calculate the base position (without current offset) to center on
-                const jobRadius = Math.min(dimensions.width, dimensions.height) * 0.28;
+                const jobRadius = Math.min(dimensions.width, dimensions.height) * 0.22;
                 const angle = (index / bubbles.length) * Math.PI * 2 - Math.PI / 2;
                 const baseX = centerX + Math.cos(angle) * jobRadius;
                 const baseY = centerY + Math.sin(angle) * jobRadius;
