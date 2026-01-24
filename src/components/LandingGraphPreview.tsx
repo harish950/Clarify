@@ -155,7 +155,7 @@ const LandingGraphPreview = () => {
       <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-graph-bg to-transparent z-[5] pointer-events-none" />
       <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-graph-bg to-transparent z-[5] pointer-events-none" />
       {/* Header overlay */}
-      <div className="absolute inset-x-0 top-0 z-10 p-8 md:p-12">
+      <div className="absolute inset-x-0 top-0 z-10 p-8 md:p-12 md:pl-24 lg:pl-32">
         <motion.h1 
           className="text-3xl md:text-5xl font-bold text-white mb-3 leading-tight tracking-tight"
           initial={{ opacity: 0, y: 20 }}
