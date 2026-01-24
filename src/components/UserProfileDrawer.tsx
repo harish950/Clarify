@@ -1,8 +1,5 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  User, 
-  MapPin, 
   Briefcase, 
   Target, 
   ChevronRight, 
@@ -11,61 +8,25 @@ import {
   Clock,
   CheckCircle2
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { SavedPath, RoadmapStep } from '@/types/roadmap';
-import { supabase } from '@/integrations/supabase/client';
+import { SavedPath } from '@/types/roadmap';
 
 interface UserProfileDrawerProps {
   user: any;
+  savedPaths: SavedPath[];
+  userProfile: any;
+  isLoading?: boolean;
   onPathClick?: (path: SavedPath) => void;
 }
 
-const UserProfileDrawer = ({ user, onPathClick }: UserProfileDrawerProps) => {
-  const [savedPaths, setSavedPaths] = useState<SavedPath[]>([]);
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadData = async () => {
-      if (!user?.id) return;
-      
-      setIsLoading(true);
-      try {
-        // Load user profile
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-        
-        setUserProfile(profile);
-
-        // Load saved paths
-        const { data: paths } = await supabase
-          .from('saved_paths')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('updated_at', { ascending: false });
-        
-        if (paths) {
-          const typedPaths: SavedPath[] = paths.map(p => ({
-            ...p,
-            status: p.status as 'active' | 'paused' | 'completed',
-            roadmap: (p.roadmap as unknown as RoadmapStep[]) || []
-          }));
-          setSavedPaths(typedPaths);
-        }
-      } catch (error) {
-        console.error('Error loading user data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, [user?.id]);
+const UserProfileDrawer = ({ 
+  user, 
+  savedPaths, 
+  userProfile, 
+  isLoading = false, 
+  onPathClick 
+}: UserProfileDrawerProps) => {
 
   const displayName = user?.user_metadata?.name || userProfile?.name || 'User';
   const initials = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
