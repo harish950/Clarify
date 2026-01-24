@@ -34,9 +34,13 @@ const BubbleTooltip = ({ bubble, mousePosition }: BubbleTooltipProps) => {
             <span className="text-muted-foreground">Time to Reach</span>
             <span className="font-medium">{bubble.estimatedMonths} mo</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Skills Gap</span>
-            <span className="font-medium text-bubble-warning">{bubble.missingSkills.length}</span>
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">Skills</span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-medium text-emerald-500">{bubble.matchedSkills.length}</span>
+              <span className="text-muted-foreground">/</span>
+              <span className="font-medium text-bubble-warning">{bubble.missingSkills.length}</span>
+            </div>
           </div>
         </div>
 
