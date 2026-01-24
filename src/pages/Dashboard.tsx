@@ -130,32 +130,31 @@ const Dashboard = () => {
             />
           </div>
         </main>
+
+        {/* Detail Panel - Integrated on the right */}
+        <AnimatePresence>
+          {isPanelOpen && selectedBubble && (
+            <motion.aside
+              className="w-96 border-l border-border hidden md:block"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 384, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <BubbleDetailPanel 
+                bubble={selectedBubble}
+                onClose={handleClosePanel}
+                isExpanded={isPanelOpen}
+              />
+            </motion.aside>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Tooltip */}
       <AnimatePresence>
         {hoveredBubble && !isPanelOpen && (
           <BubbleTooltip bubble={hoveredBubble} mousePosition={mousePosition} />
-        )}
-      </AnimatePresence>
-
-      {/* Detail Panel */}
-      <BubbleDetailPanel 
-        bubble={selectedBubble}
-        onClose={handleClosePanel}
-        isExpanded={isPanelOpen}
-      />
-
-      {/* Overlay */}
-      <AnimatePresence>
-        {isPanelOpen && (
-          <motion.div 
-            className="fixed inset-0 bg-background/50 z-40"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleClosePanel}
-          />
         )}
       </AnimatePresence>
     </div>
