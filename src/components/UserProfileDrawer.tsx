@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Briefcase, 
   Target, 
@@ -6,11 +6,49 @@ import {
   Sparkles,
   TrendingUp,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Building2,
+  MapPin,
+  MoreVertical,
+  Trash2,
+  Send
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { SavedPath } from '@/types/roadmap';
+import { AppliedJob, ApplicationStatus } from '@/hooks/useAppliedJobs';
+import { formatDistanceToNow } from 'date-fns';
+
+const statusColors: Record<ApplicationStatus, string> = {
+  applied: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  interviewing: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  offered: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
+  withdrawn: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+};
+
+const statusLabels: Record<ApplicationStatus, string> = {
+  applied: 'Applied',
+  interviewing: 'Interviewing',
+  offered: 'Offered',
+  rejected: 'Rejected',
+  withdrawn: 'Withdrawn',
+};
 
 interface UserProfileDrawerProps {
   user: any;
@@ -18,6 +56,10 @@ interface UserProfileDrawerProps {
   userProfile: any;
   isLoading?: boolean;
   onPathClick?: (path: SavedPath) => void;
+  appliedJobs?: AppliedJob[];
+  appliedJobsLoading?: boolean;
+  onUpdateJobStatus?: (applicationId: string, status: ApplicationStatus) => Promise<boolean>;
+  onRemoveJob?: (applicationId: string) => Promise<boolean>;
 }
 
 const UserProfileDrawer = ({ 
@@ -25,7 +67,11 @@ const UserProfileDrawer = ({
   savedPaths, 
   userProfile, 
   isLoading = false, 
-  onPathClick 
+  onPathClick,
+  appliedJobs = [],
+  appliedJobsLoading = false,
+  onUpdateJobStatus,
+  onRemoveJob
 }: UserProfileDrawerProps) => {
 
   const displayName = user?.user_metadata?.name || userProfile?.name || 'User';
@@ -194,6 +240,112 @@ const UserProfileDrawer = ({
               </div>
             </section>
           )}
+
+          {/* Applied Jobs Section */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Send className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-semibold">Applied Jobs</h3>
+              {appliedJobs.length > 0 && (
+                <Badge variant="secondary" className="text-xs ml-auto">
+                  {appliedJobs.length}
+                </Badge>
+              )}
+            </div>
+
+            {appliedJobsLoading ? (
+              <div className="space-y-2">
+                {[1, 2].map(i => (
+                  <div key={i} className="surface-elevated rounded-lg p-3 animate-pulse">
+                    <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                    <div className="h-2 bg-muted rounded w-full" />
+                  </div>
+                ))}
+              </div>
+            ) : appliedJobs.length === 0 ? (
+              <div className="surface-elevated rounded-lg p-4 text-center">
+                <Briefcase className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  No applications yet
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Apply to jobs to track them here
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <AnimatePresence>
+                  {appliedJobs.map((application) => (
+                    <motion.div
+                      key={application.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="surface-elevated rounded-lg p-3 border border-border/50 hover:border-border transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm truncate">
+                            {application.job?.title || 'Unknown Job'}
+                          </h4>
+                          {application.job?.company && (
+                            <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                              <Building2 className="w-3 h-3" />
+                              <span className="truncate">{application.job.company}</span>
+                            </div>
+                          )}
+                          {application.job?.location && (
+                            <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
+                              <MapPin className="w-3 h-3" />
+                              <span className="truncate">{application.job.location}</span>
+                            </div>
+                          )}
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
+                              <MoreVertical className="w-3.5 h-3.5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => onRemoveJob?.(application.id)}
+                            >
+                              <Trash2 className="w-3.5 h-3.5 mr-2" />
+                              Remove
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-2 gap-2">
+                        <Select
+                          value={application.status}
+                          onValueChange={(value) => onUpdateJobStatus?.(application.id, value as ApplicationStatus)}
+                        >
+                          <SelectTrigger className={`h-7 text-xs w-auto px-2 border ${statusColors[application.status]}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(statusLabels).map(([value, label]) => (
+                              <SelectItem key={value} value={value} className="text-xs">
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                          <Clock className="w-3 h-3" />
+                          {formatDistanceToNow(new Date(application.applied_at), { addSuffix: true })}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </section>
         </div>
       </ScrollArea>
     </div>

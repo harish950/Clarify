@@ -8,7 +8,6 @@ import BubbleTooltip from '@/components/BubbleTooltip';
 import Header from '@/components/Header';
 import UserProfileDrawer from '@/components/UserProfileDrawer';
 import RoadmapDrawer from '@/components/RoadmapDrawer';
-import AppliedJobsPanel from '@/components/AppliedJobsPanel';
 import { MatchFiltersPanel } from '@/components/MatchFiltersPanel';
 import { CareerBubble } from '@/types/career';
 import { SavedPath } from '@/types/roadmap';
@@ -262,19 +261,11 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-57px)]">
-        {/* Applied Jobs Panel - Left Side */}
-        <AppliedJobsPanel
-          appliedJobs={appliedJobs}
-          isLoading={appliedJobsLoading}
-          onUpdateStatus={updateStatus}
-          onRemove={removeApplication}
-        />
-
-        {/* User Profile Drawer - Left Side (offset for applied jobs panel) */}
+        {/* User Profile Drawer - Left Side */}
         <AnimatePresence>
           {showUserDrawer && (
             <motion.aside
-              className="w-72 border-r border-border hidden md:block ml-12"
+              className="w-72 border-r border-border hidden md:block"
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 288, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
@@ -285,6 +276,10 @@ const Dashboard = () => {
                 savedPaths={savedPaths}
                 userProfile={userProfile}
                 onPathClick={handlePathClick}
+                appliedJobs={appliedJobs}
+                appliedJobsLoading={appliedJobsLoading}
+                onUpdateJobStatus={updateStatus}
+                onRemoveJob={removeApplication}
               />
             </motion.aside>
           )}
