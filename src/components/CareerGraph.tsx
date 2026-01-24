@@ -208,6 +208,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
                 y2={skillNode.y}
                 stroke="hsl(var(--graph-edge))"
                 strokeWidth={1}
+                strokeDasharray="4 3"
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ pathLength: 1, opacity: 0.4 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
