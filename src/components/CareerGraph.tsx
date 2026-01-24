@@ -1,5 +1,7 @@
 import { useRef, useCallback, useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { RotateCcw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { CareerBubble } from '@/types/career';
 import { mockSkills, mockUserProfile } from '@/data/mockData';
 
@@ -33,6 +35,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
@@ -48,6 +51,19 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  // Handle zoom with mouse wheel
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const zoomSpeed = 0.001;
+    const newZoom = Math.max(0.5, Math.min(2, zoom - e.deltaY * zoomSpeed));
+    setZoom(newZoom);
+  }, [zoom]);
+
+  const resetView = useCallback(() => {
+    setViewOffset({ x: 0, y: 0 });
+    setZoom(1);
   }, []);
 
   const centerX = dimensions.width / 2;
@@ -150,6 +166,8 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
     setIsDragging(false);
   }, []);
 
+  const isDefaultView = viewOffset.x === 0 && viewOffset.y === 0 && zoom === 1;
+
   return (
     <div 
       ref={containerRef}
@@ -158,14 +176,16 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      onWheel={handleWheel}
     >
-      {/* Edge blur overlays */}
-      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-graph-bg via-graph-bg/80 via-50% to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-graph-bg via-graph-bg/60 to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-graph-bg to-transparent z-[5] pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-graph-bg to-transparent z-[5] pointer-events-none" />
-
-      {/* Connection lines */}
+      {/* Zoomable content wrapper */}
+      <div 
+        className="absolute inset-0 transition-transform duration-100"
+        style={{
+          transform: `scale(${zoom})`,
+          transformOrigin: 'center center',
+        }}
+      >
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         <defs>
           <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -309,16 +329,42 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
           <span className="text-graph-label font-bold text-sm">You</span>
         </div>
       </motion.div>
+      </div>
+
+      {/* Edge blur overlays - outside zoom wrapper */}
+      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-graph-bg via-graph-bg/80 via-50% to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-graph-bg via-graph-bg/60 to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-graph-bg to-transparent z-[5] pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-graph-bg to-transparent z-[5] pointer-events-none" />
 
       {/* Drag hint */}
-      {!isDragging && viewOffset.x === 0 && viewOffset.y === 0 && (
+      {!isDragging && isDefaultView && (
         <motion.div 
           className="absolute left-1/2 bottom-6 -translate-x-1/2 text-xs text-graph-label/70 bg-graph-bg/80 backdrop-blur-sm px-4 py-2 rounded-full border border-graph-edge/30 z-10"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
         >
-          Drag anywhere to explore
+          Scroll to zoom · Drag to explore
+        </motion.div>
+      )}
+
+      {/* Reset view button */}
+      {!isDefaultView && (
+        <motion.div
+          className="absolute bottom-4 right-4 z-10"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={resetView}
+            className="gap-1.5 shadow-md"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Reset
+          </Button>
         </motion.div>
       )}
     </div>
