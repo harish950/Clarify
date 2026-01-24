@@ -43,53 +43,57 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-6 pt-8 pb-20">
+      <main className="container mx-auto px-6 pt-6 pb-16">
         {/* Graph as Hero */}
         <motion.div 
-          className="max-w-6xl mx-auto mb-12" 
+          className="max-w-5xl mx-auto" 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="rounded-2xl overflow-hidden shadow-2xl border border-border">
-            <div className="h-[500px] md:h-[600px]">
+          <div className="rounded-2xl overflow-hidden border border-border/50">
+            <div className="h-[420px] md:h-[520px]">
               <LandingGraphPreview />
             </div>
           </div>
-        </motion.div>
-
-        {/* CTA Buttons */}
-        <motion.div 
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16" 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <Link to="/auth?mode=signup">
-            <Button size="lg" className="gap-2">
-              Start mapping your career
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link to="/explore">
-            <Button variant="outline" size="lg">
-              Try the demo
-            </Button>
-          </Link>
-        </motion.div>
-
-        {/* Feature Cards */}
-        <motion.div 
-          className="grid md:grid-cols-3 gap-4 mt-20 max-w-4xl mx-auto" 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          <FeatureCard icon={<Target className="w-5 h-5" />} title="Personalized fit scores" description="See how well each role matches your current skills and interests." />
-          <FeatureCard icon={<BarChart3 className="w-5 h-5" />} title="Skill gap analysis" description="Understand exactly what you need to learn to reach your goals." />
-          <FeatureCard icon={<Zap className="w-5 h-5" />} title="Actionable roadmaps" description="Get step-by-step guidance with courses, projects, and milestones." />
+          
+          {/* CTA Buttons - integrated closer to graph */}
+          <motion.div 
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8" 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <Link to="/auth?mode=signup">
+              <Button size="lg" className="gap-2">
+                Start mapping your career
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+            <Link to="/explore">
+              <Button variant="outline" size="lg">
+                Try the demo
+              </Button>
+            </Link>
+          </motion.div>
         </motion.div>
       </main>
+
+      {/* Features Section - Separate visual area */}
+      <section className="border-t border-border bg-muted/30 py-16">
+        <div className="container mx-auto px-6">
+          <motion.div 
+            className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto" 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
+            <FeatureCard icon={<Target className="w-5 h-5" />} title="Personalized fit scores" description="See how well each role matches your current skills." />
+            <FeatureCard icon={<BarChart3 className="w-5 h-5" />} title="Skill gap analysis" description="Understand what you need to learn next." />
+            <FeatureCard icon={<Zap className="w-5 h-5" />} title="Actionable roadmaps" description="Step-by-step guidance to reach your goals." />
+          </motion.div>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="border-t border-border py-6 px-6">
