@@ -209,46 +209,46 @@ const LandingGraphPreview = () => {
       </svg>
 
       {/* Nodes */}
-      {nodes.map((node, i) => (
-        <motion.div
-          key={node.id}
-          className="absolute flex items-center"
-          style={{
-            left: node.x,
-            top: node.y,
-            transform: 'translate(-50%, -50%)',
-          }}
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ 
-            duration: 0.4, 
-            delay: node.isMain ? 0.2 : node.isSecondary ? 0.4 + i * 0.05 : 0.6 + i * 0.02,
-            ease: "easeOut" 
-          }}
-        >
-          {/* Node circle */}
-          <div
-            className={`rounded-full ${node.isMain ? 'bg-graph-node-main' : 'bg-graph-node'}`}
+      {nodes.map((node, i) => {
+        const diameter = node.size * 2;
+        return (
+          <motion.div
+            key={node.id}
+            className="absolute"
             style={{
-              width: node.size * 2,
-              height: node.size * 2,
+              left: node.x - diameter / 2,
+              top: node.y - diameter / 2,
+              width: diameter,
+              height: diameter,
             }}
-          />
-          
-          {/* Label */}
-          <span 
-            className={`absolute whitespace-nowrap text-graph-label ${
-              node.isMain 
-                ? 'font-bold text-sm left-full ml-3' 
-                : node.isSecondary 
-                  ? 'font-medium text-xs left-full ml-2' 
-                  : 'text-[10px] opacity-60 left-full ml-1.5'
-            }`}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ 
+              duration: 0.4, 
+              delay: node.isMain ? 0.2 : node.isSecondary ? 0.4 + i * 0.05 : 0.6 + i * 0.02,
+              ease: "easeOut" 
+            }}
           >
-            {node.label}
-          </span>
-        </motion.div>
-      ))}
+            {/* Node circle - exactly centered */}
+            <div
+              className={`w-full h-full rounded-full ${node.isMain ? 'bg-graph-node-main' : 'bg-graph-node'}`}
+            />
+            
+            {/* Label positioned outside the circle */}
+            <span 
+              className={`absolute whitespace-nowrap text-graph-label top-1/2 -translate-y-1/2 ${
+                node.isMain 
+                  ? 'font-bold text-sm left-full ml-3' 
+                  : node.isSecondary 
+                    ? 'font-medium text-xs left-full ml-2' 
+                    : 'text-[10px] opacity-60 left-full ml-1.5'
+              }`}
+            >
+              {node.label}
+            </span>
+          </motion.div>
+        );
+      })}
     </div>
   );
 };
