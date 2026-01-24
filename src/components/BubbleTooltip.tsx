@@ -12,40 +12,36 @@ const BubbleTooltip = ({ bubble, mousePosition }: BubbleTooltipProps) => {
   return (
     <motion.div
       className="fixed z-50 pointer-events-none"
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
+      exit={{ opacity: 0, scale: 0.95 }}
       style={{
-        left: mousePosition.x + 20,
-        top: mousePosition.y - 10,
+        left: mousePosition.x + 16,
+        top: mousePosition.y - 8,
       }}
     >
-      <div className="glass-strong rounded-xl p-4 min-w-[200px] max-w-[280px]">
+      <div className="bg-card border border-border shadow-lg rounded-xl p-3 min-w-[180px]">
         <div className="flex items-center gap-2 mb-2">
-          <div 
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: bubble.color }}
-          />
-          <span className="font-display font-bold">{bubble.name}</span>
+          <span className="font-semibold text-sm">{bubble.name}</span>
         </div>
         
-        <div className="space-y-2 text-sm">
+        <div className="space-y-1.5 text-xs">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Fit Score</span>
-            <span className="font-semibold text-primary">{bubble.fitScore}%</span>
+            <span className="font-medium text-primary">{bubble.fitScore}%</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Time to Reach</span>
-            <span className="font-semibold">{bubble.estimatedMonths} months</span>
+            <span className="font-medium">{bubble.estimatedMonths} mo</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Missing Skills</span>
-            <span className="font-semibold text-nebula-orange">{bubble.missingSkills.length}</span>
+            <span className="text-muted-foreground">Skills Gap</span>
+            <span className="font-medium text-bubble-warning">{bubble.missingSkills.length}</span>
           </div>
         </div>
 
-        <div className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
-          Click to explore roadmap
+        <div className="mt-2 pt-2 border-t border-border text-[10px] text-muted-foreground">
+          Click for details
         </div>
       </div>
     </motion.div>

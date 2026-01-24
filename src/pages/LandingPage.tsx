@@ -1,125 +1,88 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, Zap, Target } from 'lucide-react';
+import { ArrowRight, BarChart3, Target, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-nebula relative overflow-hidden">
-      {/* Animated stars background */}
-      <div className="fixed inset-0 stars-bg opacity-50 pointer-events-none" />
-      
-      {/* Floating orbs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <motion.div 
-          className="absolute w-96 h-96 rounded-full bg-primary/20 blur-3xl"
-          animate={{ 
-            x: [0, 100, 0], 
-            y: [0, -50, 0],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          style={{ top: '10%', left: '10%' }}
-        />
-        <motion.div 
-          className="absolute w-80 h-80 rounded-full bg-secondary/20 blur-3xl"
-          animate={{ 
-            x: [0, -80, 0], 
-            y: [0, 80, 0],
-            scale: [1, 1.3, 1]
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          style={{ top: '50%', right: '5%' }}
-        />
-        <motion.div 
-          className="absolute w-64 h-64 rounded-full bg-nebula-pink/15 blur-3xl"
-          animate={{ 
-            x: [0, 60, 0], 
-            y: [0, -60, 0],
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-          style={{ bottom: '10%', left: '30%' }}
-        />
-      </div>
-
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="relative z-10 flex items-center justify-between px-6 py-4 lg:px-12">
+      <nav className="flex items-center justify-between px-6 py-4 lg:px-12 border-b border-border">
         <motion.div 
           className="flex items-center gap-2"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4 }}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-foreground" />
+          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-sm">CN</span>
           </div>
-          <span className="font-display text-xl font-bold">Career Nebula</span>
+          <span className="text-lg font-semibold">Career Nebula</span>
         </motion.div>
 
         <motion.div 
-          className="flex items-center gap-4"
+          className="flex items-center gap-3"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
         >
           <Link to="/auth">
             <Button variant="ghost" size="sm">Sign In</Button>
           </Link>
           <Link to="/auth?mode=signup">
-            <Button variant="glow" size="sm">Get Started</Button>
+            <Button size="sm">Get Started</Button>
           </Link>
         </motion.div>
       </nav>
 
       {/* Hero Section */}
-      <main className="relative z-10 container mx-auto px-6 pt-20 pb-32">
-        <div className="max-w-4xl mx-auto text-center">
+      <main className="container mx-auto px-6 pt-24 pb-32">
+        <div className="max-w-3xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.5 }}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-muted-foreground mb-8">
-              <Zap className="w-4 h-4 text-primary" />
-              Visualize your career journey like never before
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+              <Zap className="w-3.5 h-3.5" />
+              For fresh graduates
             </span>
           </motion.div>
 
           <motion.h1 
-            className="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight"
-            initial={{ opacity: 0, y: 30 }}
+            className="text-4xl md:text-6xl font-bold mb-6 leading-tight tracking-tight"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Navigate Your{' '}
-            <span className="text-gradient-glow">Career Universe</span>
+            Navigate your career with{' '}
+            <span className="text-gradient">clarity</span>
           </motion.h1>
 
           <motion.p 
-            className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
+            className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
-            Stop browsing job boards. Start exploring an interactive galaxy of career opportunities 
-            tailored to your skills, interests, and ambitions.
+            Visualize career opportunities as an interactive map. See which roles fit your skills, what you need to learn, and how to get there.
           </motion.p>
 
           <motion.div 
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-            initial={{ opacity: 0, y: 30 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-3"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
           >
             <Link to="/auth?mode=signup">
-              <Button variant="hero" size="xl" className="group">
-                Launch Your Journey
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Button size="lg" className="gap-2">
+                Start mapping your career
+                <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
             <Link to="/explore">
-              <Button variant="glass" size="xl">
-                Explore Demo
+              <Button variant="outline" size="lg">
+                Try the demo
               </Button>
             </Link>
           </motion.div>
@@ -127,82 +90,85 @@ const LandingPage = () => {
 
         {/* Feature Cards */}
         <motion.div 
-          className="grid md:grid-cols-3 gap-6 mt-32 max-w-5xl mx-auto"
-          initial={{ opacity: 0, y: 50 }}
+          className="grid md:grid-cols-3 gap-4 mt-24 max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
         >
           <FeatureCard 
-            icon={<Target className="w-6 h-6" />}
-            title="Personalized Career Map"
-            description="Upload your resume and get an interactive visualization of roles perfectly matched to your profile."
-            color="primary"
+            icon={<Target className="w-5 h-5" />}
+            title="Personalized fit scores"
+            description="See how well each role matches your current skills and interests."
           />
           <FeatureCard 
-            icon={<Sparkles className="w-6 h-6" />}
-            title="Skill Gap Analysis"
-            description="See exactly what skills you need and how long it takes to reach your dream role."
-            color="secondary"
+            icon={<BarChart3 className="w-5 h-5" />}
+            title="Skill gap analysis"
+            description="Understand exactly what you need to learn to reach your goals."
           />
           <FeatureCard 
-            icon={<Zap className="w-6 h-6" />}
-            title="Actionable Roadmaps"
-            description="Turn insights into action with personalized learning paths and project recommendations."
-            color="accent"
+            icon={<Zap className="w-5 h-5" />}
+            title="Actionable roadmaps"
+            description="Get step-by-step guidance with courses, projects, and milestones."
           />
         </motion.div>
 
-        {/* Interactive Preview */}
+        {/* Preview */}
         <motion.div 
-          className="mt-32 relative"
-          initial={{ opacity: 0, scale: 0.95 }}
+          className="mt-24 max-w-4xl mx-auto"
+          initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.7 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
         >
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 pointer-events-none" />
-          <div className="glass-strong rounded-2xl p-8 relative overflow-hidden">
-            <div className="aspect-video bg-muted/30 rounded-xl flex items-center justify-center relative">
-              {/* Mini bubble visualization preview */}
-              <div className="relative w-full h-full">
+          <div className="surface-elevated rounded-2xl p-6 relative overflow-hidden">
+            <div className="aspect-[16/10] bg-muted/50 rounded-xl flex items-center justify-center relative">
+              {/* Mini visualization */}
+              <div className="relative">
                 {/* Center node */}
-                <motion.div 
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center glow-primary z-10"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                >
-                  <span className="font-display font-bold text-sm">ME</span>
-                </motion.div>
+                <div className="w-16 h-16 rounded-full bg-foreground flex items-center justify-center z-10 relative shadow-lg">
+                  <span className="font-bold text-background text-sm">YOU</span>
+                </div>
 
                 {/* Orbiting bubbles */}
                 {[
-                  { name: 'SWE', color: 'from-primary to-primary/70', size: 'w-14 h-14', orbit: 120, delay: 0 },
-                  { name: 'DS', color: 'from-secondary to-secondary/70', size: 'w-12 h-12', orbit: 160, delay: 2 },
-                  { name: 'PM', color: 'from-nebula-pink to-nebula-pink/70', size: 'w-10 h-10', orbit: 200, delay: 4 },
-                  { name: 'UX', color: 'from-nebula-cyan to-nebula-cyan/70', size: 'w-11 h-11', orbit: 180, delay: 6 },
+                  { name: 'SWE', color: 'bg-primary', x: -100, y: -60 },
+                  { name: 'PM', color: 'bg-accent', x: 100, y: -40 },
+                  { name: 'DS', color: 'bg-bubble-data', x: -80, y: 80 },
+                  { name: 'UX', color: 'bg-bubble-design', x: 110, y: 60 },
                 ].map((bubble, i) => (
                   <motion.div
-                    key={i}
-                    className="absolute left-1/2 top-1/2"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20 + i * 5, repeat: Infinity, ease: "linear", delay: bubble.delay }}
-                    style={{ transformOrigin: '0 0' }}
+                    key={bubble.name}
+                    className={`absolute w-12 h-12 rounded-full ${bubble.color} flex items-center justify-center shadow-md`}
+                    style={{ 
+                      left: `calc(50% + ${bubble.x}px - 24px)`, 
+                      top: `calc(50% + ${bubble.y}px - 24px)` 
+                    }}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 1 + i * 0.1 }}
                   >
-                    <motion.div
-                      className={`${bubble.size} rounded-full bg-gradient-to-br ${bubble.color} flex items-center justify-center backdrop-blur-sm border border-white/10`}
-                      style={{ transform: `translateX(${bubble.orbit}px) translateY(-50%)` }}
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}
-                    >
-                      <span className="font-display text-xs font-bold">{bubble.name}</span>
-                    </motion.div>
+                    <span className="text-white text-xs font-semibold">{bubble.name}</span>
                   </motion.div>
                 ))}
 
-                {/* Connection lines (subtle) */}
-                <svg className="absolute inset-0 w-full h-full opacity-20">
-                  <circle cx="50%" cy="50%" r="120" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
-                  <circle cx="50%" cy="50%" r="160" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
-                  <circle cx="50%" cy="50%" r="200" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
+                {/* Connection lines */}
+                <svg className="absolute inset-0 w-full h-full" style={{ left: -120, top: -100, width: 300, height: 240 }}>
+                  {[
+                    { x: 50, y: 60 },
+                    { x: 250, y: 80 },
+                    { x: 70, y: 200 },
+                    { x: 260, y: 180 },
+                  ].map((pos, i) => (
+                    <line
+                      key={i}
+                      x1="150"
+                      y1="120"
+                      x2={pos.x}
+                      y2={pos.y}
+                      stroke="hsl(var(--border))"
+                      strokeWidth="1.5"
+                      strokeDasharray="4 4"
+                    />
+                  ))}
                 </svg>
               </div>
             </div>
@@ -211,13 +177,12 @@ const LandingPage = () => {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-border py-8 px-6">
-        <div className="container mx-auto flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">© 2024 Career Nebula. All rights reserved.</span>
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+      <footer className="border-t border-border py-6 px-6">
+        <div className="container mx-auto flex items-center justify-between text-sm text-muted-foreground">
+          <span>© 2024 Career Nebula</span>
+          <div className="flex items-center gap-6">
             <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
             <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-            <a href="#" className="hover:text-foreground transition-colors">Contact</a>
           </div>
         </div>
       </footer>
@@ -229,28 +194,16 @@ interface FeatureCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
-  color: 'primary' | 'secondary' | 'accent';
 }
 
-const FeatureCard = ({ icon, title, description, color }: FeatureCardProps) => {
-  const colorClasses = {
-    primary: 'text-primary bg-primary/10',
-    secondary: 'text-secondary bg-secondary/10',
-    accent: 'text-accent bg-accent/10',
-  };
-
-  return (
-    <motion.div 
-      className="glass rounded-2xl p-6 hover:border-primary/30 transition-all duration-300 group"
-      whileHover={{ y: -5, scale: 1.02 }}
-    >
-      <div className={`w-12 h-12 rounded-xl ${colorClasses[color]} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-        {icon}
-      </div>
-      <h3 className="font-display text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground text-sm">{description}</p>
-    </motion.div>
-  );
-};
+const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
+  <div className="surface-elevated rounded-xl p-5 hover:border-primary/30 transition-colors">
+    <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-3">
+      {icon}
+    </div>
+    <h3 className="font-semibold mb-1">{title}</h3>
+    <p className="text-sm text-muted-foreground">{description}</p>
+  </div>
+);
 
 export default LandingPage;

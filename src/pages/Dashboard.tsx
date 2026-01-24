@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Settings, LogOut, Search, Bell } from 'lucide-react';
+import { Settings, Search, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import CareerGraph from '@/components/CareerGraph';
@@ -37,53 +37,48 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-nebula relative overflow-hidden">
-      {/* Background */}
-      <div className="fixed inset-0 stars-bg opacity-30 pointer-events-none" />
-
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="relative z-20 flex items-center justify-between px-6 py-4 border-b border-border/50 glass">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-foreground" />
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xs">CN</span>
             </div>
-            <span className="font-display text-xl font-bold hidden sm:block">Career Nebula</span>
+            <span className="font-semibold hidden sm:block">Career Nebula</span>
           </Link>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="hidden md:flex items-center gap-2 glass rounded-lg px-3 py-2 mr-2">
+          <div className="hidden md:flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 mr-2">
             <Search className="w-4 h-4 text-muted-foreground" />
             <input 
               type="text" 
               placeholder="Search careers..." 
-              className="bg-transparent border-none outline-none text-sm w-40"
+              className="bg-transparent border-none outline-none text-sm w-32"
             />
           </div>
           <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
+            <Bell className="w-4 h-4" />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
           </Button>
           <Button variant="ghost" size="icon">
-            <Settings className="w-5 h-5" />
+            <Settings className="w-4 h-4" />
           </Button>
-          <div className="w-px h-6 bg-border mx-2" />
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-sm font-bold">
+          <div className="w-px h-5 bg-border mx-1" />
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center text-xs font-semibold text-background">
               {mockUserProfile.name.split(' ').map(n => n[0]).join('')}
             </div>
-            <span className="text-sm font-medium hidden sm:block">{mockUserProfile.name}</span>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="relative z-10 flex h-[calc(100vh-73px)]">
+      <div className="flex h-[calc(100vh-57px)]">
         {/* Sidebar */}
-        <aside className="w-80 p-4 border-r border-border/50 hidden lg:block overflow-y-auto">
+        <aside className="w-72 p-4 border-r border-border hidden lg:block overflow-y-auto bg-card">
           <div className="space-y-4">
-            {/* User Stats */}
             <UserStats 
               level={mockUserProfile.currentLevel}
               xp={mockUserProfile.xp}
@@ -91,51 +86,40 @@ const Dashboard = () => {
               totalQuests={10}
             />
 
-            {/* Time Slider */}
             <TimeSlider 
               value={timeProjection}
               onChange={setTimeProjection}
             />
 
-            {/* Quick Legend */}
-            <div className="glass rounded-xl p-4">
-              <h3 className="text-sm font-semibold mb-3">Career Sectors</h3>
+            <div className="surface-elevated rounded-xl p-4">
+              <h3 className="text-sm font-semibold mb-3">Sectors</h3>
               <div className="space-y-2">
                 {Array.from(new Set(mockCareerBubbles.map(b => b.sector))).map(sector => {
-                  const bubble = mockCareerBubbles.find(b => b.sector === sector);
+                  const colors: Record<string, string> = {
+                    'Technology': 'bg-primary',
+                    'Data & AI': 'bg-accent',
+                    'Business': 'bg-bubble-business',
+                    'Design': 'bg-bubble-design',
+                  };
                   return (
                     <div key={sector} className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: bubble?.color }}
-                      />
+                      <div className={`w-2.5 h-2.5 rounded-full ${colors[sector] || 'bg-primary'}`} />
                       <span className="text-sm text-muted-foreground">{sector}</span>
                     </div>
                   );
                 })}
               </div>
             </div>
-
-            {/* Tips */}
-            <div className="glass rounded-xl p-4 border-primary/30">
-              <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                Pro Tip
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Larger bubbles indicate higher career fit. Drag the "ME" node to simulate different career paths and see how opportunities shift!
-              </p>
-            </div>
           </div>
         </aside>
 
         {/* Graph Area */}
-        <main className="flex-1 p-4 relative">
+        <main className="flex-1 p-4 relative bg-muted/20">
           <motion.div 
             className="h-full"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
           >
             <CareerGraph 
               bubbles={mockCareerBubbles}
@@ -158,10 +142,7 @@ const Dashboard = () => {
       {/* Tooltip */}
       <AnimatePresence>
         {hoveredBubble && !isPanelOpen && (
-          <BubbleTooltip 
-            bubble={hoveredBubble} 
-            mousePosition={mousePosition}
-          />
+          <BubbleTooltip bubble={hoveredBubble} mousePosition={mousePosition} />
         )}
       </AnimatePresence>
 
@@ -172,7 +153,7 @@ const Dashboard = () => {
         isExpanded={isPanelOpen}
       />
 
-      {/* Overlay when panel is open */}
+      {/* Overlay */}
       <AnimatePresence>
         {isPanelOpen && (
           <motion.div 

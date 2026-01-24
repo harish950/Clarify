@@ -7,7 +7,7 @@ interface TimeSliderProps {
 
 const TimeSlider = ({ value, onChange }: TimeSliderProps) => {
   const months = [1, 3, 6, 12];
-  const labels = ['1 month', '3 months', '6 months', '1 year'];
+  const labels = ['1 mo', '3 mo', '6 mo', '1 yr'];
 
   const getMonthIndex = (val: number) => {
     return months.findIndex(m => m === val) ?? 0;
@@ -19,10 +19,10 @@ const TimeSlider = ({ value, onChange }: TimeSliderProps) => {
   };
 
   return (
-    <div className="glass rounded-xl p-4">
+    <div className="surface-elevated rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-medium">Time Projection</span>
-        <span className="text-sm text-primary font-display font-bold">
+        <span className="text-sm text-primary font-semibold">
           {labels[getMonthIndex(value)]}
         </span>
       </div>
@@ -36,13 +36,10 @@ const TimeSlider = ({ value, onChange }: TimeSliderProps) => {
         className="w-full"
       />
 
-      <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+      <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
         {labels.map((label, i) => (
-          <span 
-            key={label} 
-            className={getMonthIndex(value) === i ? 'text-primary' : ''}
-          >
-            {label.split(' ')[0]}
+          <span key={label} className={getMonthIndex(value) === i ? 'text-primary font-medium' : ''}>
+            {label}
           </span>
         ))}
       </div>
