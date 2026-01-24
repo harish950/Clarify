@@ -120,14 +120,14 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
       };
     });
 
-    // Get skills that connect to visible jobs - limit each skill to max 3 jobs
+    // Get skills that connect to visible jobs - limit each skill to max 2 jobs
     const visibleJobIds = bubbles.map(b => b.id);
     const relevantSkills = mockSkills
       .filter(skill => skill.jobs.some(jobId => visibleJobIds.includes(jobId)))
       .map(skill => ({
         ...skill,
-        // Keep up to 3 matching jobs
-        jobs: skill.jobs.filter(jobId => visibleJobIds.includes(jobId)).slice(0, 3)
+        // Keep up to 2 matching jobs
+        jobs: skill.jobs.filter(jobId => visibleJobIds.includes(jobId)).slice(0, 2)
       }));
 
     // Position skills - place them around jobs with better spacing
@@ -297,33 +297,19 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier, se
           />
         ))}
         
-        {/* Curved lines from Jobs to Skills - curve outward from center */}
+        {/* Lines from Jobs to Skills */}
         {skillNodes.map((skillNode) =>
           skillNode.connectedJobs.map((jobId) => {
             const jobNode = jobNodes.find(j => j.job.id === jobId);
             if (!jobNode) return null;
             
-            // Calculate control point that curves outward from center
-            const midX = (jobNode.x + skillNode.x) / 2;
-            const midY = (jobNode.y + skillNode.y) / 2;
-            
-            // Direction from center to midpoint
-            const dirX = midX - (centerX + viewOffset.x);
-            const dirY = midY - (centerY + viewOffset.y);
-            const dist = Math.sqrt(dirX * dirX + dirY * dirY);
-            
-            // Push control point outward from center
-            const curveFactor = 40;
-            const ctrlX = midX + (dirX / dist) * curveFactor;
-            const ctrlY = midY + (dirY / dist) * curveFactor;
-            
-            const pathD = `M ${jobNode.x} ${jobNode.y} Q ${ctrlX} ${ctrlY} ${skillNode.x} ${skillNode.y}`;
-            
             return (
-              <motion.path
+              <motion.line
                 key={`line-${jobId}-${skillNode.id}`}
-                d={pathD}
-                fill="none"
+                x1={jobNode.x}
+                y1={jobNode.y}
+                x2={skillNode.x}
+                y2={skillNode.y}
                 stroke="hsl(var(--graph-edge))"
                 strokeWidth={1}
                 strokeDasharray="4 3"
