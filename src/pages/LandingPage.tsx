@@ -18,9 +18,9 @@ const LandingPage = () => {
         duration: 0.4
       }}>
           <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">CN</span>
+            <span className="text-primary-foreground font-bold text-sm">C</span>
           </div>
-          <span className="text-lg font-semibold">Career Nebula</span>
+          <span className="text-lg font-semibold">Clarity</span>
         </motion.div>
 
         <motion.div className="flex items-center gap-3" initial={{
@@ -87,7 +87,7 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="py-6 px-6">
         <div className="container mx-auto flex items-center justify-between text-sm text-graph-label/60">
-          <span>© 2024 Career Nebula</span>
+          <span>© 2024 Clarity</span>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>

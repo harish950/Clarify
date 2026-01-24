@@ -163,7 +163,7 @@ const LandingGraphPreview = () => {
           transition={{ duration: 0.5 }}
         >
           Navigate your career with{' '}
-          <span className="text-graph-node-main">clarity</span>
+          <span className="text-graph-node-main">Clarity</span>
         </motion.h1>
         <motion.p 
           className="text-graph-label max-w-md text-sm md:text-base font-medium"
