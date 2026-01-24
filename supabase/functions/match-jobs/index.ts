@@ -2,15 +2,15 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Weights for multi-vector scoring: Skills 50%, Experience 30%, Interests 20%
+// Weights for multi-vector scoring: Skills 30%, Experience 30%, Interests 40%
 const WEIGHTS = {
-  skills: 0.5,
+  skills: 0.3,
   experience: 0.3,
-  interests: 0.2,
+  interests: 0.4,
 };
 
 interface MatchExplanation {
@@ -27,34 +27,35 @@ interface MatchExplanation {
 async function generateExplanation(
   userSkills: string[],
   jobSkills: string[],
-  scores: { skills: number; experience: number; interests: number }
+  scores: { skills: number; experience: number; interests: number },
 ): Promise<MatchExplanation> {
-  const matchedSkills = userSkills.filter(skill => 
-    jobSkills.some(js => js.toLowerCase().includes(skill.toLowerCase()) || 
-                        skill.toLowerCase().includes(js.toLowerCase()))
+  const matchedSkills = userSkills.filter((skill) =>
+    jobSkills.some(
+      (js) => js.toLowerCase().includes(skill.toLowerCase()) || skill.toLowerCase().includes(js.toLowerCase()),
+    ),
   );
-  
-  const missingSkills = jobSkills.filter(skill => 
-    !userSkills.some(us => us.toLowerCase().includes(skill.toLowerCase()) || 
-                          skill.toLowerCase().includes(us.toLowerCase()))
+
+  const missingSkills = jobSkills.filter(
+    (skill) =>
+      !userSkills.some(
+        (us) => us.toLowerCase().includes(skill.toLowerCase()) || skill.toLowerCase().includes(us.toLowerCase()),
+      ),
   );
 
   const strengthAreas: string[] = [];
   const improvementAreas: string[] = [];
 
-  if (scores.skills >= 0.7) strengthAreas.push('Strong skill alignment');
-  else if (scores.skills < 0.4) improvementAreas.push('Skills gap to address');
+  if (scores.skills >= 0.7) strengthAreas.push("Strong skill alignment");
+  else if (scores.skills < 0.4) improvementAreas.push("Skills gap to address");
 
-  if (scores.experience >= 0.7) strengthAreas.push('Relevant experience');
-  else if (scores.experience < 0.4) improvementAreas.push('Experience building needed');
+  if (scores.experience >= 0.7) strengthAreas.push("Relevant experience");
+  else if (scores.experience < 0.4) improvementAreas.push("Experience building needed");
 
-  if (scores.interests >= 0.7) strengthAreas.push('Great interest match');
-  else if (scores.interests < 0.4) improvementAreas.push('Consider if interests align');
+  if (scores.interests >= 0.7) strengthAreas.push("Great interest match");
+  else if (scores.interests < 0.4) improvementAreas.push("Consider if interests align");
 
-  const weightedScore = 
-    scores.skills * WEIGHTS.skills + 
-    scores.experience * WEIGHTS.experience + 
-    scores.interests * WEIGHTS.interests;
+  const weightedScore =
+    scores.skills * WEIGHTS.skills + scores.experience * WEIGHTS.experience + scores.interests * WEIGHTS.interests;
 
   return {
     skillsScore: scores.skills,
@@ -69,37 +70,37 @@ async function generateExplanation(
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
     // Use service role for vector operations
     const supabase = createClient(supabaseUrl, supabaseKey);
-    
+
     // Verify user token
-    const anonClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-      global: { headers: { Authorization: authHeader } }
+    const anonClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: authHeader } },
     });
-    
-    const token = authHeader.replace('Bearer ', '');
+
+    const token = authHeader.replace("Bearer ", "");
     const { data: claims, error: claimsError } = await anonClient.auth.getClaims(token);
-    
+
     if (claimsError || !claims?.claims) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), {
+      return new Response(JSON.stringify({ error: "Invalid token" }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -108,49 +109,58 @@ serve(async (req) => {
 
     // Get user profile with embeddings
     const { data: profile, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('user_id', userId)
+      .from("user_profiles")
+      .select("*")
+      .eq("user_id", userId)
       .single();
 
     if (profileError || !profile) {
-      console.error('Profile not found:', profileError);
-      return new Response(JSON.stringify({ 
-        error: 'Profile not found. Please complete your profile first.' 
-      }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      console.error("Profile not found:", profileError);
+      return new Response(
+        JSON.stringify({
+          error: "Profile not found. Please complete your profile first.",
+        }),
+        {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     if (!profile.skills_embedding) {
-      return new Response(JSON.stringify({ 
-        error: 'Embeddings not generated. Please update your profile.' 
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          error: "Embeddings not generated. Please update your profile.",
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Get all jobs with embeddings
     const { data: jobs, error: jobsError } = await supabase
-      .from('jobs')
-      .select('*')
-      .not('skills_embedding', 'is', null);
+      .from("jobs")
+      .select("*")
+      .not("skills_embedding", "is", null);
 
     if (jobsError) {
-      console.error('Jobs fetch error:', jobsError);
+      console.error("Jobs fetch error:", jobsError);
       throw jobsError;
     }
 
     if (!jobs || jobs.length === 0) {
-      console.log('No jobs with embeddings found');
-      return new Response(JSON.stringify({ 
-        matches: [],
-        message: 'No jobs available for matching'
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      console.log("No jobs with embeddings found");
+      return new Response(
+        JSON.stringify({
+          matches: [],
+          message: "No jobs available for matching",
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     console.log(`Found ${jobs.length} jobs to match against`);
@@ -161,9 +171,9 @@ serve(async (req) => {
     for (const job of jobs) {
       // Use PostgreSQL cosine similarity via RPC (1 - cosine distance)
       // For now, we'll compute similarity scores using the stored function
-      const { data: scoreData } = await supabase.rpc('compute_job_match_score', {
+      const { data: scoreData } = await supabase.rpc("compute_job_match_score", {
         p_user_id: userId,
-        p_job_id: job.id
+        p_job_id: job.id,
       });
 
       // Calculate individual scores for explanation
@@ -172,11 +182,11 @@ serve(async (req) => {
       const experienceScore = scoreData ? Math.min(1, Math.max(0, scoreData * 1.2)) : 0.4;
       const interestsScore = scoreData ? Math.min(1, Math.max(0, scoreData)) : 0.3;
 
-      const explanation = await generateExplanation(
-        profile.parsed_skills || [],
-        job.required_skills || [],
-        { skills: skillsScore, experience: experienceScore, interests: interestsScore }
-      );
+      const explanation = await generateExplanation(profile.parsed_skills || [], job.required_skills || [], {
+        skills: skillsScore,
+        experience: experienceScore,
+        interests: interestsScore,
+      });
 
       matches.push({
         jobId: job.id,
@@ -192,7 +202,7 @@ serve(async (req) => {
           experienceLevel: job.experience_level,
           sourceUrl: job.source_url,
         },
-        ...explanation
+        ...explanation,
       });
     }
 
@@ -200,7 +210,7 @@ serve(async (req) => {
     matches.sort((a, b) => b.weightedScore - a.weightedScore);
 
     // Store matches in database
-    const matchInserts = matches.map(m => ({
+    const matchInserts = matches.map((m) => ({
       user_id: userId,
       job_id: m.jobId,
       skills_score: m.skillsScore,
@@ -217,31 +227,36 @@ serve(async (req) => {
 
     // Upsert all matches
     const { error: matchError } = await supabase
-      .from('job_matches')
-      .upsert(matchInserts, { onConflict: 'user_id,job_id' });
+      .from("job_matches")
+      .upsert(matchInserts, { onConflict: "user_id,job_id" });
 
     if (matchError) {
-      console.error('Match storage error:', matchError);
+      console.error("Match storage error:", matchError);
       // Continue anyway - matches are still returned
     }
 
     console.log(`Computed and stored ${matches.length} job matches for user: ${userId}`);
 
-    return new Response(JSON.stringify({ 
-      success: true,
-      matchCount: matches.length,
-      matches: matches.slice(0, 50), // Return top 50
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-
+    return new Response(
+      JSON.stringify({
+        success: true,
+        matchCount: matches.length,
+        matches: matches.slice(0, 50), // Return top 50
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
-    console.error('Match jobs error:', error);
-    return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'Unknown error' 
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    console.error("Match jobs error:", error);
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 });
