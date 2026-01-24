@@ -25,6 +25,10 @@ const AuthPage = () => {
     skills: [] as string[],
     careerGoals: '',
     experience: '',
+    workEnvironment: '',
+    salaryRange: '',
+    helpWith: [] as string[],
+    currentGoal: '',
   });
   const [customInterest, setCustomInterest] = useState('');
   const [customSkill, setCustomSkill] = useState('');
@@ -385,15 +389,89 @@ const AuthPage = () => {
                       </select>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="goals">What are your career goals?</Label>
-                      <Textarea 
-                        id="goals" 
-                        placeholder="E.g., I want to become a senior software engineer..."
-                        value={formData.careerGoals}
-                        onChange={(e) => setFormData(prev => ({ ...prev, careerGoals: e.target.value }))}
-                        className="min-h-[100px] resize-none"
-                      />
+                    <div className="space-y-3">
+                      <Label>Preferred work environment?</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {['Remote', 'Hybrid', 'On-site', 'Flexible'].map(env => (
+                          <button
+                            key={env}
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, workEnvironment: env }))}
+                            className={`px-3 py-1.5 rounded-full text-sm transition-all border ${
+                              formData.workEnvironment === env
+                                ? 'bg-primary text-primary-foreground border-primary'
+                                : 'bg-background text-muted-foreground border-border hover:border-primary/50'
+                            }`}
+                          >
+                            {env}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label>Expected salary range</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {['< $3k', '$3k – $5k', '$5k – $8k', '$8k+'].map(salary => (
+                          <button
+                            key={salary}
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, salaryRange: salary }))}
+                            className={`px-3 py-1.5 rounded-full text-sm transition-all border ${
+                              formData.salaryRange === salary
+                                ? 'bg-primary text-primary-foreground border-primary'
+                                : 'bg-background text-muted-foreground border-border hover:border-primary/50'
+                            }`}
+                          >
+                            {salary}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label>What do you want help with most?</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {['Finding roles', 'Improving skills', 'Building roadmap', 'Interview prep', 'Networking'].map(help => (
+                          <button
+                            key={help}
+                            type="button"
+                            onClick={() => setFormData(prev => ({
+                              ...prev,
+                              helpWith: prev.helpWith.includes(help)
+                                ? prev.helpWith.filter(h => h !== help)
+                                : [...prev.helpWith, help]
+                            }))}
+                            className={`px-3 py-1.5 rounded-full text-sm transition-all border ${
+                              formData.helpWith.includes(help)
+                                ? 'bg-accent text-accent-foreground border-accent'
+                                : 'bg-background text-muted-foreground border-border hover:border-accent/50'
+                            }`}
+                          >
+                            {help}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label>What best describes your current goal?</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {['Get my first job', 'Switch industries', 'Level up in my current field', 'Explore options', 'Prepare for leadership roles'].map(goal => (
+                          <button
+                            key={goal}
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, currentGoal: goal }))}
+                            className={`px-3 py-1.5 rounded-full text-sm transition-all border ${
+                              formData.currentGoal === goal
+                                ? 'bg-primary text-primary-foreground border-primary'
+                                : 'bg-background text-muted-foreground border-border hover:border-primary/50'
+                            }`}
+                          >
+                            {goal}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     <div className="flex gap-3">
