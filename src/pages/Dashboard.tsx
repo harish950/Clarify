@@ -335,17 +335,6 @@ const Dashboard = () => {
             />
           </motion.div>
 
-          {/* Match count indicator */}
-          {allMatches.length > 0 && (
-            <motion.div
-              className="absolute top-4 right-4 surface-elevated rounded-lg px-3 py-2 text-xs"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <span className="text-muted-foreground">AI Matched: </span>
-              <span className="font-semibold text-primary">{allMatches.length} careers</span>
-            </motion.div>
-          )}
         </main>
 
         {/* Detail Panel - Integrated on the right */}
