@@ -1,6 +1,7 @@
 import { useRef, useCallback, useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CareerBubble } from '@/types/career';
+import { mockSkills } from '@/data/mockData';
 
 interface CareerGraphProps {
   bubbles: CareerBubble[];
@@ -9,30 +10,30 @@ interface CareerGraphProps {
   timeMultiplier: number;
 }
 
-interface DomainNode {
+interface JobNode {
+  job: CareerBubble;
+  x: number;
+  y: number;
+  size: number;
+  labelSide: 'left' | 'right';
+}
+
+interface SkillNode {
   id: string;
   name: string;
   x: number;
   y: number;
   size: number;
-  careers: CareerBubble[];
-}
-
-interface PositionedCareer {
-  career: CareerBubble;
-  x: number;
-  y: number;
-  size: number;
+  connectedJobs: string[];
   labelSide: 'left' | 'right';
-  domainId: string;
 }
 
 const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: CareerGraphProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
-  const [userPosition, setUserPosition] = useState({ x: 0, y: 0 });
+  const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -51,99 +52,93 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
   const centerX = dimensions.width / 2;
   const centerY = dimensions.height / 2;
 
-  // Group careers by sector/domain and position everything
-  const { domains, positionedCareers } = useMemo(() => {
-    const sectorMap: Record<string, CareerBubble[]> = {};
-    bubbles.forEach(bubble => {
-      if (!sectorMap[bubble.sector]) {
-        sectorMap[bubble.sector] = [];
-      }
-      sectorMap[bubble.sector].push(bubble);
-    });
-
-    const sectorNames = Object.keys(sectorMap);
-    const domainRadius = Math.min(dimensions.width, dimensions.height) * 0.26;
-
-    // Position domains in quadrants to maximize space
-    const domainAngles = [
-      -Math.PI * 0.75,  // Top-left
-      -Math.PI * 0.25,  // Top-right
-      Math.PI * 0.25,   // Bottom-right
-      Math.PI * 0.75,   // Bottom-left
-    ];
-
-    const domainNodes: DomainNode[] = sectorNames.map((sector, index): DomainNode => {
-      const angle = domainAngles[index % 4];
-      const careers = sectorMap[sector];
+  // Position jobs around the center and skills around jobs
+  const { jobNodes, skillNodes } = useMemo(() => {
+    const jobRadius = Math.min(dimensions.width, dimensions.height) * 0.28;
+    const skillRadius = 90;
+    
+    // Position jobs evenly around center
+    const jobs: JobNode[] = bubbles.map((job, index) => {
+      const angle = (index / bubbles.length) * Math.PI * 2 - Math.PI / 2;
+      const x = centerX + viewOffset.x + Math.cos(angle) * jobRadius;
+      const y = centerY + viewOffset.y + Math.sin(angle) * jobRadius;
       
       return {
-        id: sector.toLowerCase().replace(/\s+/g, '-'),
-        name: sector,
-        x: centerX + userPosition.x + Math.cos(angle) * domainRadius,
-        y: centerY + userPosition.y + Math.sin(angle) * domainRadius,
-        size: 32,
-        careers
+        job,
+        x,
+        y,
+        size: 28 + (job.fitScore / 100) * 12,
+        labelSide: x > centerX + viewOffset.x ? 'right' : 'left'
       };
     });
 
-    // Position careers around their domains with more spacing
-    const careers: PositionedCareer[] = [];
-    
-    domainNodes.forEach((domain, domainIndex) => {
-      const careerCount = domain.careers.length;
-      // Increase base radius for more spacing
-      const careerRadius = 100 + Math.max(0, careerCount - 3) * 15;
-      
-      // Calculate angle offset so careers don't overlap between domains
-      const domainAngle = domainAngles[domainIndex % 4];
-      
-      domain.careers.forEach((career, careerIndex) => {
-        // Spread careers in arc facing away from center
-        const arcSpread = Math.PI * 0.9;
-        const startAngle = domainAngle - arcSpread / 2;
-        const angle = startAngle + (careerIndex / Math.max(careerCount - 1, 1)) * arcSpread;
-        
-        const x = domain.x + Math.cos(angle) * careerRadius;
-        const y = domain.y + Math.sin(angle) * careerRadius;
-        
-        // Label goes opposite to the domain center
-        const careerIsOnRight = x > domain.x;
-        
-        careers.push({
-          career,
-          x,
-          y,
-          size: 20 + (career.fitScore / 100) * 10,
-          labelSide: careerIsOnRight ? 'right' : 'left',
-          domainId: domain.id
-        });
-      });
-    });
+    // Get skills that connect to visible jobs
+    const visibleJobIds = bubbles.map(b => b.id);
+    const relevantSkills = mockSkills.filter(skill => 
+      skill.jobs.some(jobId => visibleJobIds.includes(jobId))
+    );
 
-    return { domains: domainNodes, positionedCareers: careers };
-  }, [bubbles, dimensions, centerX, centerY, userPosition]);
+    // Position skills - place them between jobs they connect to
+    const skills: SkillNode[] = relevantSkills.map((skill, index) => {
+      // Find jobs this skill connects to
+      const connectedJobNodes = jobs.filter(j => skill.jobs.includes(j.job.id));
+      
+      if (connectedJobNodes.length === 0) {
+        return null;
+      }
+
+      // Calculate position as weighted center of connected jobs, pushed outward
+      let avgX = connectedJobNodes.reduce((sum, j) => sum + j.x, 0) / connectedJobNodes.length;
+      let avgY = connectedJobNodes.reduce((sum, j) => sum + j.y, 0) / connectedJobNodes.length;
+      
+      // Push skill outward from center
+      const angleFromCenter = Math.atan2(avgY - centerY - viewOffset.y, avgX - centerX - viewOffset.x);
+      const distanceFromCenter = Math.sqrt(
+        Math.pow(avgX - centerX - viewOffset.x, 2) + 
+        Math.pow(avgY - centerY - viewOffset.y, 2)
+      );
+      
+      // Position skill further out than jobs, with some spread
+      const skillDistance = distanceFromCenter + skillRadius + (index % 3) * 25;
+      const angleOffset = ((index % 5) - 2) * 0.15;
+      
+      const x = centerX + viewOffset.x + Math.cos(angleFromCenter + angleOffset) * skillDistance;
+      const y = centerY + viewOffset.y + Math.sin(angleFromCenter + angleOffset) * skillDistance;
+
+      return {
+        id: skill.id,
+        name: skill.name,
+        x,
+        y,
+        size: 16 + connectedJobNodes.length * 2,
+        connectedJobs: skill.jobs.filter(jobId => visibleJobIds.includes(jobId)),
+        labelSide: x > centerX + viewOffset.x ? 'right' : 'left'
+      };
+    }).filter(Boolean) as SkillNode[];
+
+    return { jobNodes: jobs, skillNodes: skills };
+  }, [bubbles, dimensions, centerX, centerY, viewOffset]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    // Allow dragging from anywhere on the canvas
     setIsDragging(true);
-    setDragOffset({
-      x: e.clientX - userPosition.x,
-      y: e.clientY - userPosition.y
+    setDragStart({
+      x: e.clientX - viewOffset.x,
+      y: e.clientY - viewOffset.y
     });
-  }, [userPosition]);
+  }, [viewOffset]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging) return;
     
-    const newX = e.clientX - dragOffset.x;
-    const newY = e.clientY - dragOffset.y;
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
     
-    const maxDrag = 150;
-    setUserPosition({
+    const maxDrag = 200;
+    setViewOffset({
       x: Math.max(-maxDrag, Math.min(maxDrag, newX)),
       y: Math.max(-maxDrag, Math.min(maxDrag, newY))
     });
-  }, [isDragging, dragOffset]);
+  }, [isDragging, dragStart]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -176,122 +171,123 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
           </filter>
         </defs>
         
-        {/* Lines from You to Domains */}
-        {domains.map((domain, index) => (
+        {/* Lines from You to Jobs */}
+        {jobNodes.map((jobNode, index) => (
           <motion.line
-            key={`line-you-${domain.id}`}
-            x1={centerX + userPosition.x}
-            y1={centerY + userPosition.y}
-            x2={domain.x}
-            y2={domain.y}
+            key={`line-you-${jobNode.job.id}`}
+            x1={centerX + viewOffset.x}
+            y1={centerY + viewOffset.y}
+            x2={jobNode.x}
+            y2={jobNode.y}
             stroke="hsl(var(--graph-edge))"
             strokeWidth={1.5}
             initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 0.6 }}
-            transition={{ duration: 0.6, delay: 0.2 + index * 0.08 }}
+            animate={{ pathLength: 1, opacity: jobNode.job.unlocked ? 0.6 : 0.2 }}
+            transition={{ duration: 0.6, delay: 0.2 + index * 0.05 }}
           />
         ))}
         
-        {/* Lines from Domains to Careers */}
-        {positionedCareers.map((pc, index) => {
-          const domain = domains.find(d => d.id === pc.domainId);
-          if (!domain) return null;
-          
-          return (
-            <motion.line
-              key={`line-career-${pc.career.id}`}
-              x1={domain.x}
-              y1={domain.y}
-              x2={pc.x}
-              y2={pc.y}
-              stroke="hsl(var(--graph-edge))"
-              strokeWidth={1}
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: pc.career.unlocked ? 0.5 : 0.2 }}
-              transition={{ duration: 0.5, delay: 0.4 + index * 0.02 }}
-            />
-          );
-        })}
+        {/* Lines from Jobs to Skills */}
+        {skillNodes.map((skillNode) =>
+          skillNode.connectedJobs.map((jobId) => {
+            const jobNode = jobNodes.find(j => j.job.id === jobId);
+            if (!jobNode) return null;
+            
+            return (
+              <motion.line
+                key={`line-${jobId}-${skillNode.id}`}
+                x1={jobNode.x}
+                y1={jobNode.y}
+                x2={skillNode.x}
+                y2={skillNode.y}
+                stroke="hsl(var(--graph-edge))"
+                strokeWidth={1}
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 0.4 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              />
+            );
+          })
+        )}
       </svg>
 
-      {/* Domain Nodes */}
-      {domains.map((domain, index) => {
-        const isOnRight = domain.x > centerX + userPosition.x;
+      {/* Job Nodes */}
+      {jobNodes.map((jobNode, index) => {
+        const isLocked = !jobNode.job.unlocked;
         
         return (
           <motion.div
-            key={domain.id}
-            className="absolute"
+            key={jobNode.job.id}
+            className={`absolute ${isLocked ? 'opacity-30' : 'cursor-pointer'}`}
             style={{
-              left: domain.x - domain.size / 2,
-              top: domain.y - domain.size / 2,
-              width: domain.size,
-              height: domain.size,
+              left: jobNode.x - jobNode.size / 2,
+              top: jobNode.y - jobNode.size / 2,
+              width: jobNode.size,
+              height: jobNode.size,
             }}
             initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.25 + index * 0.08, ease: "easeOut" }}
-          >
-            <div className="w-full h-full rounded-full bg-graph-node-main/70" />
-            <span 
-              className={`absolute whitespace-nowrap text-graph-label font-semibold text-[11px] top-1/2 -translate-y-1/2 ${
-                isOnRight ? 'left-full ml-2' : 'right-full mr-2 text-right'
-              }`}
-            >
-              {domain.name}
-            </span>
-          </motion.div>
-        );
-      })}
-
-      {/* Career Nodes */}
-      {positionedCareers.map((pc, index) => {
-        const isLocked = !pc.career.unlocked;
-
-        return (
-          <motion.div
-            key={pc.career.id}
-            className={`absolute ${isLocked ? 'opacity-25' : 'cursor-pointer'}`}
-            style={{
-              left: pc.x - pc.size / 2,
-              top: pc.y - pc.size / 2,
-              width: pc.size,
-              height: pc.size,
+            animate={{ scale: 1, opacity: isLocked ? 0.3 : 1 }}
+            transition={{ duration: 0.4, delay: 0.25 + index * 0.05, ease: "easeOut" }}
+            whileHover={!isLocked ? { scale: 1.15, zIndex: 15 } : undefined}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!isLocked) onBubbleClick(jobNode.job);
             }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: isLocked ? 0.25 : 1 }}
-            transition={{ duration: 0.3, delay: 0.5 + index * 0.025, ease: "easeOut" }}
-            whileHover={!isLocked ? { scale: 1.2, zIndex: 15 } : undefined}
-            whileTap={!isLocked ? { scale: 0.95 } : undefined}
-            onClick={() => !isLocked && onBubbleClick(pc.career)}
-            onMouseEnter={() => !isLocked && onBubbleHover(pc.career)}
+            onMouseEnter={() => !isLocked && onBubbleHover(jobNode.job)}
             onMouseLeave={() => onBubbleHover(null)}
           >
-            <div className="w-full h-full rounded-full bg-graph-node" />
+            <div className="w-full h-full rounded-full bg-graph-node-main/80" />
             <span 
-              className={`absolute whitespace-nowrap text-graph-label font-medium text-[9px] top-1/2 -translate-y-1/2 opacity-70 ${
-                pc.labelSide === 'right' ? 'left-full ml-1' : 'right-full mr-1 text-right'
+              className={`absolute whitespace-nowrap text-graph-label font-semibold text-[10px] top-1/2 -translate-y-1/2 ${
+                jobNode.labelSide === 'right' ? 'left-full ml-2' : 'right-full mr-2 text-right'
               }`}
             >
-              {pc.career.name.length > 12 ? pc.career.name.split(' ')[0] : pc.career.name}
+              {jobNode.job.name}
             </span>
             {isLocked && (
               <div className="absolute inset-0 rounded-full flex items-center justify-center bg-graph-bg/50">
-                <span className="text-[8px]">🔒</span>
+                <span className="text-[10px]">🔒</span>
               </div>
             )}
           </motion.div>
         );
       })}
 
+      {/* Skill Nodes */}
+      {skillNodes.map((skillNode, index) => (
+        <motion.div
+          key={skillNode.id}
+          className="absolute"
+          style={{
+            left: skillNode.x - skillNode.size / 2,
+            top: skillNode.y - skillNode.size / 2,
+            width: skillNode.size,
+            height: skillNode.size,
+          }}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.6 + index * 0.02, ease: "easeOut" }}
+          whileHover={{ scale: 1.2, zIndex: 15 }}
+        >
+          <div className="w-full h-full rounded-full bg-graph-node" />
+          <span 
+            className={`absolute whitespace-nowrap text-graph-label font-medium text-[8px] top-1/2 -translate-y-1/2 opacity-70 ${
+              skillNode.labelSide === 'right' ? 'left-full ml-1' : 'right-full mr-1 text-right'
+            }`}
+          >
+            {skillNode.name}
+          </span>
+        </motion.div>
+      ))}
+
       {/* Center "You" Node */}
       <motion.div
         className="absolute z-20"
         style={{
-          left: centerX + userPosition.x - 28,
-          top: centerY + userPosition.y - 28,
-          width: 56,
-          height: 56,
+          left: centerX + viewOffset.x - 32,
+          top: centerY + viewOffset.y - 32,
+          width: 64,
+          height: 64,
         }}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -305,7 +301,7 @@ const CareerGraph = ({ bubbles, onBubbleClick, onBubbleHover, timeMultiplier }: 
       </motion.div>
 
       {/* Drag hint */}
-      {!isDragging && userPosition.x === 0 && userPosition.y === 0 && (
+      {!isDragging && viewOffset.x === 0 && viewOffset.y === 0 && (
         <motion.div 
           className="absolute left-1/2 bottom-6 -translate-x-1/2 text-xs text-graph-label/70 bg-graph-bg/80 backdrop-blur-sm px-4 py-2 rounded-full border border-graph-edge/30 z-10"
           initial={{ opacity: 0, y: 10 }}
