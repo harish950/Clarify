@@ -10,10 +10,19 @@ import { CareerBubble } from '@/types/career';
 import { mockCareerBubbles, mockUserProfile } from '@/data/mockData';
 
 const Dashboard = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedBubble, setSelectedBubble] = useState<CareerBubble | null>(null);
   const [hoveredBubble, setHoveredBubble] = useState<CareerBubble | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+  useEffect(() => {
+    // Simulate loading time for data/graph preparation
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -32,6 +41,54 @@ const Dashboard = () => {
     setIsPanelOpen(false);
     setTimeout(() => setSelectedBubble(null), 300);
   };
+
+  // Loading screen
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-graph-bg flex items-center justify-center">
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Animated loader */}
+          <div className="relative w-20 h-20 mx-auto mb-6">
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-graph-node/20"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute inset-2 rounded-full border-2 border-graph-node/40"
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+            />
+            <motion.div
+              className="absolute inset-4 rounded-full border-2 border-graph-node/60"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <motion.div
+                className="w-3 h-3 rounded-full bg-graph-node"
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </div>
+          </div>
+          
+          <motion.p
+            className="text-graph-label/80 text-sm font-medium"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            Mapping your career universe...
+          </motion.p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
