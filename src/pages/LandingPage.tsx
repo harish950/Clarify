@@ -70,7 +70,7 @@ const LandingPage = () => {
             </Button>
           </Link>
           <Link to="/explore">
-            <Button variant="outline" size="lg" className="border-graph-label/30 text-graph-label hover:bg-white/10 hover:text-white">
+            <Button variant="outline" size="lg" className="border-white/40 text-white hover:bg-white/10">
               Try the demo
             </Button>
           </Link>
