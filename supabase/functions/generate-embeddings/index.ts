@@ -71,7 +71,11 @@ async function generateEmbedding(text: string): Promise<number[]> {
   const embedding = new Array(768).fill(0);
   
   keywords.forEach((keyword, i) => {
-    const hash = simpleHash(keyword.toLowerCase());
+    // Sanitize keyword - remove null chars and non-printable characters
+    const sanitized = String(keyword).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    if (!sanitized) return;
+    
+    const hash = simpleHash(sanitized.toLowerCase());
     for (let j = 0; j < 768; j++) {
       // Distribute the hash across dimensions with varying weights
       embedding[j] += Math.sin(hash * (j + 1) * 0.001) * (1 / (i + 1));
@@ -151,24 +155,36 @@ serve(async (req) => {
 
     console.log(`Generated embeddings - Skills: ${skillsEmbedding.length}, Experience: ${experienceEmbedding.length}, Interests: ${interestsEmbedding.length}`);
 
-    // Format embeddings as pgvector strings
-    const formatVector = (arr: number[]) => `[${arr.join(',')}]`;
+    // Format embeddings as pgvector strings - ensure no special chars
+    const formatVector = (arr: number[]) => {
+      const cleanValues = arr.map(v => {
+        const num = Number(v);
+        return isNaN(num) ? 0 : parseFloat(num.toFixed(8));
+      });
+      return `[${cleanValues.join(',')}]`;
+    };
+    
+    // Sanitize text fields to remove null characters
+    const sanitizeText = (text: string | undefined): string | undefined => {
+      if (!text) return text;
+      return text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    };
 
     // Upsert user profile with embeddings
     const { error: upsertError } = await supabase
       .from('user_profiles')
       .upsert({
         user_id: userId,
-        name: profileData.name,
-        email: profileData.email,
-        resume_text: profileData.resumeText,
-        linkedin_url: profileData.linkedinUrl,
-        parsed_skills: profileData.skills,
-        parsed_experience: profileData.experience,
-        interests: profileData.interests,
-        work_environment: profileData.workEnvironment,
-        salary_range: profileData.salaryRange,
-        career_goals: profileData.careerGoals,
+        name: sanitizeText(profileData.name),
+        email: sanitizeText(profileData.email),
+        resume_text: sanitizeText(profileData.resumeText),
+        linkedin_url: sanitizeText(profileData.linkedinUrl),
+        parsed_skills: (profileData.skills || []).map(s => sanitizeText(s) || '').filter(Boolean),
+        parsed_experience: sanitizeText(profileData.experience),
+        interests: (profileData.interests || []).map(i => sanitizeText(i) || '').filter(Boolean),
+        work_environment: sanitizeText(profileData.workEnvironment),
+        salary_range: sanitizeText(profileData.salaryRange),
+        career_goals: (profileData.careerGoals || []).map(g => sanitizeText(g) || '').filter(Boolean),
         skills_embedding: formatVector(skillsEmbedding),
         experience_embedding: formatVector(experienceEmbedding),
         interests_embedding: formatVector(interestsEmbedding),
