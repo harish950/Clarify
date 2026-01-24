@@ -43,57 +43,48 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-6 pt-24 pb-32">
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.5
-        }}>
-            
-          </motion.div>
+      <main className="container mx-auto px-6 pt-12 pb-20">
+        {/* Graph as Hero */}
+        <motion.div 
+          className="max-w-6xl mx-auto mb-16" 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="rounded-2xl overflow-hidden shadow-2xl border border-border">
+            <div className="h-[500px] md:h-[600px]">
+              <LandingGraphPreview />
+            </div>
+          </div>
+        </motion.div>
 
-          <motion.h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight tracking-tight" initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.5,
-          delay: 0.1
-        }}>
+        {/* Text Content Below */}
+        <div className="max-w-2xl mx-auto text-center">
+          <motion.h1 
+            className="text-3xl md:text-5xl font-bold mb-4 leading-tight tracking-tight" 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
             Navigate your career with{' '}
             <span className="text-gradient">clarity</span>
           </motion.h1>
 
-          <motion.p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto" initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.5,
-          delay: 0.2
-        }}>
+          <motion.p 
+            className="text-muted-foreground mb-8 max-w-lg mx-auto" 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
             Visualize career opportunities as an interactive map. See which roles fit your skills, what you need to learn, and how to get there.
           </motion.p>
 
-          <motion.div className="flex flex-col sm:flex-row items-center justify-center gap-3" initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.5,
-          delay: 0.3
-        }}>
+          <motion.div 
+            className="flex flex-col sm:flex-row items-center justify-center gap-3" 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
             <Link to="/auth?mode=signup">
               <Button size="lg" className="gap-2">
                 Start mapping your career
@@ -109,37 +100,15 @@ const LandingPage = () => {
         </div>
 
         {/* Feature Cards */}
-        <motion.div className="grid md:grid-cols-3 gap-4 mt-24 max-w-4xl mx-auto" initial={{
-        opacity: 0,
-        y: 30
-      }} animate={{
-        opacity: 1,
-        y: 0
-      }} transition={{
-        duration: 0.6,
-        delay: 0.5
-      }}>
+        <motion.div 
+          className="grid md:grid-cols-3 gap-4 mt-20 max-w-4xl mx-auto" 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+        >
           <FeatureCard icon={<Target className="w-5 h-5" />} title="Personalized fit scores" description="See how well each role matches your current skills and interests." />
           <FeatureCard icon={<BarChart3 className="w-5 h-5" />} title="Skill gap analysis" description="Understand exactly what you need to learn to reach your goals." />
           <FeatureCard icon={<Zap className="w-5 h-5" />} title="Actionable roadmaps" description="Get step-by-step guidance with courses, projects, and milestones." />
-        </motion.div>
-
-        {/* Preview */}
-        <motion.div className="mt-24 max-w-5xl mx-auto" initial={{
-        opacity: 0,
-        scale: 0.98
-      }} animate={{
-        opacity: 1,
-        scale: 1
-      }} transition={{
-        duration: 0.6,
-        delay: 0.7
-      }}>
-          <div className="rounded-2xl overflow-hidden shadow-2xl border border-border">
-            <div className="aspect-[16/9]">
-              <LandingGraphPreview />
-            </div>
-          </div>
         </motion.div>
       </main>
 
