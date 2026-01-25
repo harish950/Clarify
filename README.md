@@ -1,73 +1,38 @@
-# Welcome to your Lovable project
+# Clarity — Semantic Intelligence for Job Matching
 
-## Project info
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+### 🚀 Inspiration
 
-## How can I edit this code?
+Job platforms today rely heavily on keyword matching. This often leads to mismatches where capable candidates are overlooked simply because their resumes don’t use the “right” words, while users struggle to discover roles that truly align with their skills, interests, and long-term goals.
 
-There are several ways of editing your application.
+We were inspired to rethink job search as a semantic problem rather than a keyword problem — where people are understood by meaning, not just text. Clarity was built to help users gain clarity over their career paths, not just their next application.
 
-**Use Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### 💡 What it does
 
-Changes made via Lovable will be committed automatically to this repo.
+Clarity is an AI-powered career matching platform that goes beyond keywords. Users upload their resume, optional LinkedIn profile, and answer a short questionnaire about their skills, experience, and interests. This information is transformed into a semantic identity vector representing the user in high-dimensional meaning space.
 
-**Use your preferred IDE**
+Job postings are processed the same way. Using cosine similarity, Clarity matches users to jobs based on real alignment, not just titles or buzzwords.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Beyond matching, Clarity generates AI-driven personalized career roadmaps that show users what skills to learn, experiences to gain, and steps to take to reach their target roles — helping users not only find jobs, but progress toward the careers they want.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 🛠️ How we built it
 
-Follow these steps:
+We built Clarity using a semantic matching pipeline:
+	•	Parsed resumes, LinkedIn profiles, and questionnaire responses.
+	•	Extracted skills, experience, and interests using NLP.
+	•	Embedded user and job data into vectors using the same embedding model.
+	•	Combined user features with a weighted fusion scheme (50% skills, 30% experience, 20% interests).
+	•	Stored users and jobs in vector form.
+	•	Computed cosine similarity to rank job recommendations.
+	•	Designed a UI that visualizes matches and surfaces AI-generated career roadmaps.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+This architecture allows users and jobs to live in the same semantic space for meaningful comparison.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 🏆 Accomplishments that we’re proud of
+	•	Built a full semantic matching pipeline instead of simple keyword search.
+	•	Designed a weighted identity representation for users.
+	•	Created job-user comparison in a shared vector space.
+	•	Integrated AI-generated career roadmaps, not just job listings.
+	•	Turned career discovery into a guided, intelligent experience rather than a static search page.
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
