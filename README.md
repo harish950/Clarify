@@ -19,13 +19,13 @@ Beyond matching, Clarity generates AI-driven personalized career roadmaps that s
 ### 🛠️ How we built it
 
 We built Clarity using a semantic matching pipeline:
-	•	Parsed resumes, LinkedIn profiles, and questionnaire responses.
-	•	Extracted skills, experience, and interests using NLP.
-	•	Embedded user and job data into vectors using the same embedding model.
-	•	Combined user features with a weighted fusion scheme (50% skills, 30% experience, 20% interests).
-	•	Stored users and jobs in vector form.
-	•	Computed cosine similarity to rank job recommendations.
-	•	Designed a UI that visualizes matches and surfaces AI-generated career roadmaps.
+- Parsed resumes, LinkedIn profiles, and questionnaire responses.
+- Extracted skills, experience, and interests using NLP.
+- Embedded user and job data into vectors using the same embedding model.
+- Combined user features with a weighted fusion scheme (30% skills, 30% experience, 40% interests).
+- Stored users and jobs in vector form.
+- Computed cosine similarity to rank job recommendations.
+- Designed a UI that visualizes matches and surfaces AI-generated career roadmaps.
 
 This architecture allows users and jobs to live in the same semantic space for meaningful comparison.
 
