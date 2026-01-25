@@ -36,3 +36,75 @@ This architecture allows users and jobs to live in the same semantic space for m
 	•	Integrated AI-generated career roadmaps, not just job listings.
 	•	Turned career discovery into a guided, intelligent experience rather than a static search page.
 
+
+### How it works
+
+1️⃣ User Data Ingestion
+
+Users provide:
+- 📄 Resume
+- 🔗 LinkedIn profile (optional)
+- 📝 Questionnaire (skills, goals, interests)
+
+These inputs capture a holistic view of the user beyond keywords.
+
+
+2️⃣ Structured Feature Extraction
+
+From the inputs, the system extracts:
+- Skills (technical + soft)
+- Experience (roles, projects, industries, seniority)
+- Interests & Aspirations (career goals, domains, work style)
+
+This converts unstructured text into meaningful attributes.
+
+
+3️⃣ Weighted Semantic Embedding
+
+All extracted data is embedded into one identity vector in semantic space using:
+- 30% Skills
+- 30% Experience
+- 40% Interests
+
+UserVector = 0.3(Skills) + 0.3(Experience) + 0.4(Interests)
+
+This vector represents the user’s career identity, not just their resume.
+
+4️⃣ Job Vectorization
+
+Each job posting is processed the same way:
+- Requirements
+- Responsibilities
+- Skills
+- Role context
+
+These are embedded into the same semantic space as users, forming Job Vectors.
+
+5️⃣ Semantic Matching (Cosine Similarity)
+
+The system compares:
+
+Similarity(User, Job) = \cos(\theta)
+- Higher score → stronger semantic alignment
+- Goes beyond titles and keywords
+- Captures meaning, intent, and trajectory fit
+
+Jobs are ranked by true relevance, not buzzwords.
+
+6️⃣ AI Reasoning Layer (Gemini-3-Flash-Preview)
+
+Using embedded context, the AI:
+- Interprets matches
+- Explains why a role fits
+- Identifies skill gaps
+- Generates custom career roadmaps
+
+This turns matching into guidance.
+
+7️⃣ Output Experience
+
+Users receive:
+- Ranked job matches
+- Match confidence scores
+- Personalized career roadmap
+- Skill recommendations to improve alignment
