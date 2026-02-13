@@ -50,7 +50,7 @@ const DemoPage = () => {
     const cy = h / 2;
 
     const mainNode: Node = {
-      id: 'you', label: 'You', x: cx, y: cy, size: 28, isMain: true
+      id: 'you', label: 'Clarity', x: cx, y: cy, size: 28, isMain: true
     };
 
     const secondaryNodes: Node[] = [
