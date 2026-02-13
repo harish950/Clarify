@@ -43,7 +43,6 @@ const DemoPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-
   const { nodes, edges } = useMemo(() => {
     const w = dimensions.width;
     const h = dimensions.height;
@@ -134,8 +133,6 @@ const DemoPage = () => {
         </motion.p>
       </div>
 
-      {/* Graph content */}
-      <div className="absolute inset-0">
       {/* Edges */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         <defs>
@@ -156,77 +153,51 @@ const DemoPage = () => {
             edge.from === highlightedId || edge.to === highlightedId ||
             (edge.from === 'you' && edge.to === highlightedId);
 
-          const cx = dimensions.width / 2;
-          const cy = dimensions.height / 2;
-
           return (
             <motion.line
               key={`edge-${i}`}
-              initial={{
-                x1: cx, y1: cy, x2: cx, y2: cy, opacity: 0,
-              }}
-              animate={{
-                x1: fromNode.x, y1: fromNode.y,
-                x2: toNode.x, y2: toNode.y,
-                opacity: isHighlighted ? [0.4, 0.9, 0.4] : (fromNode.isMain || toNode.isSecondary ? 0.5 : 0.25),
-              }}
-              transition={{
-                x1: { duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] },
-                y1: { duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] },
-                x2: { duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] },
-                y2: { duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] },
-                opacity: isHighlighted
-                  ? { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }
-                  : { duration: 0.8, delay: 0.8 },
-              }}
+              x1={fromNode.x}
+              y1={fromNode.y}
+              x2={toNode.x}
+              y2={toNode.y}
               stroke={isHighlighted ? 'hsl(var(--primary))' : 'hsl(var(--graph-edge))'}
               strokeWidth={isHighlighted ? 2 : 1}
               filter={isHighlighted ? 'url(#glow-demo)' : undefined}
+              animate={{
+                opacity: isHighlighted ? [0.4, 0.9, 0.4] : (fromNode.isMain || toNode.isSecondary ? 0.5 : 0.25),
+              }}
+              transition={isHighlighted ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.6 }}
             />
           );
         })}
       </svg>
 
       {/* Nodes */}
-      {nodes.map((node, idx) => {
+      {nodes.map((node) => {
         const diameter = node.size * 2;
         const isHighlighted = node.id === highlightedId;
         const isConnectedToHighlight = edges.some(
           e => (e.from === highlightedId && e.to === node.id) || (e.to === highlightedId && e.from === node.id)
         );
 
-        const cx = dimensions.width / 2;
-        const cy = dimensions.height / 2;
-        const spawnDelay = node.isMain ? 0 : node.isSecondary ? 0.15 + idx * 0.05 : 0.4 + idx * 0.03;
-
         return (
           <motion.div
             key={node.id}
             className="absolute"
             style={{
+              left: node.x - diameter / 2,
+              top: node.y - diameter / 2,
               width: diameter,
               height: diameter,
             }}
-            initial={{
-              left: cx - diameter / 2,
-              top: cy - diameter / 2,
-              opacity: 0,
-              scale: 0,
-            }}
             animate={{
-              left: node.x - diameter / 2,
-              top: node.y - diameter / 2,
-              opacity: 1,
-              scale: node.isMain ? 1 : isHighlighted ? [1, 1.3, 1] : isConnectedToHighlight ? [1, 1.1, 1] : 1,
+              scale: isHighlighted ? [1, 1.3, 1] : isConnectedToHighlight ? [1, 1.1, 1] : 1,
             }}
-            transition={{
-              left: { duration: 1.2, delay: spawnDelay, ease: [0.16, 1, 0.3, 1] },
-              top: { duration: 1.2, delay: spawnDelay, ease: [0.16, 1, 0.3, 1] },
-              opacity: { duration: 0.6, delay: spawnDelay },
-              scale: isHighlighted || isConnectedToHighlight
-                ? { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: spawnDelay + 1.2 }
-                : { duration: 0.6, delay: spawnDelay },
-            }}
+            transition={
+              isHighlighted || isConnectedToHighlight
+                ? { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+                : { duration: 0.4 }
+            }
           >
             {/* Glow ring for highlighted */}
             {isHighlighted && (
@@ -257,7 +228,7 @@ const DemoPage = () => {
           </motion.div>
         );
       })}
-      </div>{/* end camera drift wrapper */}
+
       {/* Floating particles */}
       {Array.from({ length: 20 }).map((_, i) => (
         <motion.div
