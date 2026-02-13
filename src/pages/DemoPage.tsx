@@ -64,23 +64,23 @@ const DemoPage = () => {
     ];
 
     const tertiaryNodes: Node[] = [
-      { id: 'react', label: 'React', x: cx - w * 0.32, y: cy - 40, size: 8 },
-      { id: 'node', label: 'Node.js', x: cx - w * 0.28, y: cy - 140, size: 7 },
-      { id: 'typescript', label: 'TypeScript', x: cx - w * 0.38, y: cy - 100, size: 6 },
-      { id: 'api', label: 'APIs', x: cx - w * 0.12, y: cy - 140, size: 7 },
-      { id: 'agile', label: 'Agile', x: cx + w * 0.32, y: cy - 100, size: 7 },
-      { id: 'roadmap', label: 'Roadmaps', x: cx + w * 0.30, y: cy - 10, size: 6 },
-      { id: 'analytics', label: 'Analytics', x: cx + w * 0.12, y: cy - 20, size: 6 },
-      { id: 'python', label: 'Python', x: cx - w * 0.30, y: cy + 80, size: 8 },
-      { id: 'sql', label: 'SQL', x: cx - w * 0.24, y: cy + 160, size: 6 },
-      { id: 'stats', label: 'Statistics', x: cx - w * 0.06, y: cy + 60, size: 5 },
-      { id: 'figma', label: 'Figma', x: cx + w * 0.34, y: cy + 120, size: 7 },
-      { id: 'research', label: 'Research', x: cx + w * 0.30, y: cy + 30, size: 5 },
-      { id: 'proto', label: 'Prototyping', x: cx + w * 0.14, y: cy + 140, size: 6 },
-      { id: 'docker', label: 'Docker', x: cx + w * 0.16, y: cy - 160, size: 6 },
-      { id: 'ci', label: 'CI/CD', x: cx - w * 0.02, y: cy - 160, size: 5 },
-      { id: 'tensorflow', label: 'TensorFlow', x: cx - w * 0.18, y: cy + 180, size: 5 },
-      { id: 'nlp', label: 'NLP', x: cx + w * 0.04, y: cy + 180, size: 5 },
+      { id: 'react', label: 'React', x: cx - w * 0.32, y: cy - 40, size: 12 },
+      { id: 'node', label: 'Node.js', x: cx - w * 0.28, y: cy - 140, size: 11 },
+      { id: 'typescript', label: 'TypeScript', x: cx - w * 0.38, y: cy - 100, size: 10 },
+      { id: 'api', label: 'APIs', x: cx - w * 0.12, y: cy - 140, size: 11 },
+      { id: 'agile', label: 'Agile', x: cx + w * 0.32, y: cy - 100, size: 11 },
+      { id: 'roadmap', label: 'Roadmaps', x: cx + w * 0.30, y: cy - 10, size: 10 },
+      { id: 'analytics', label: 'Analytics', x: cx + w * 0.12, y: cy - 20, size: 10 },
+      { id: 'python', label: 'Python', x: cx - w * 0.30, y: cy + 80, size: 12 },
+      { id: 'sql', label: 'SQL', x: cx - w * 0.24, y: cy + 160, size: 10 },
+      { id: 'stats', label: 'Statistics', x: cx - w * 0.06, y: cy + 60, size: 9 },
+      { id: 'figma', label: 'Figma', x: cx + w * 0.34, y: cy + 120, size: 11 },
+      { id: 'research', label: 'Research', x: cx + w * 0.30, y: cy + 30, size: 9 },
+      { id: 'proto', label: 'Prototyping', x: cx + w * 0.14, y: cy + 140, size: 10 },
+      { id: 'docker', label: 'Docker', x: cx + w * 0.16, y: cy - 160, size: 10 },
+      { id: 'ci', label: 'CI/CD', x: cx - w * 0.02, y: cy - 160, size: 9 },
+      { id: 'tensorflow', label: 'TensorFlow', x: cx - w * 0.18, y: cy + 180, size: 9 },
+      { id: 'nlp', label: 'NLP', x: cx + w * 0.04, y: cy + 180, size: 9 },
     ];
 
     const allNodes = [mainNode, ...secondaryNodes, ...tertiaryNodes];
@@ -156,6 +156,10 @@ const DemoPage = () => {
             edge.from === highlightedId || edge.to === highlightedId ||
             (edge.from === 'you' && edge.to === highlightedId);
 
+          // Hide skill edges unless their parent job is highlighted
+          const isSkillEdge = !fromNode.isMain && !toNode.isMain && (!fromNode.isSecondary || !toNode.isSecondary);
+          if (isSkillEdge && !isHighlighted) return null;
+
           return (
             <motion.line
               key={`edge-${i}`}
@@ -166,6 +170,7 @@ const DemoPage = () => {
               stroke={isHighlighted ? 'hsl(var(--primary))' : 'hsl(var(--graph-edge))'}
               strokeWidth={isHighlighted ? 2 : 1}
               filter={isHighlighted ? 'url(#glow-demo)' : undefined}
+              initial={{ opacity: 0 }}
               animate={{
                 opacity: isHighlighted ? [0.4, 0.9, 0.4] : (fromNode.isMain || toNode.isSecondary ? 0.5 : 0.25),
               }}
@@ -195,6 +200,7 @@ const DemoPage = () => {
             }}
             animate={{
               scale: node.isMain ? 1 : isHighlighted ? [1, 1.3, 1] : isConnectedToHighlight ? [1, 1.1, 1] : 1,
+              opacity: (!node.isMain && !node.isSecondary && !isConnectedToHighlight) ? 0 : 1,
             }}
             transition={
               isHighlighted || isConnectedToHighlight
