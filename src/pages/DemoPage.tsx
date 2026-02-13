@@ -20,7 +20,6 @@ const DemoPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
   const [tick, setTick] = useState(0);
-  const [driftTime, setDriftTime] = useState(0);
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -44,20 +43,6 @@ const DemoPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Smooth camera drift
-  useEffect(() => {
-    let frame: number;
-    const start = performance.now();
-    const animate = (now: number) => {
-      setDriftTime((now - start) / 1000);
-      frame = requestAnimationFrame(animate);
-    };
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, []);
-
-  const driftX = Math.sin(driftTime * 0.15) * 40 + Math.cos(driftTime * 0.08) * 25;
-  const driftY = Math.cos(driftTime * 0.12) * 30 + Math.sin(driftTime * 0.06) * 20;
 
   const { nodes, edges } = useMemo(() => {
     const w = dimensions.width;
@@ -149,11 +134,8 @@ const DemoPage = () => {
         </motion.p>
       </div>
 
-      {/* Camera drift wrapper */}
-      <div
-        className="absolute inset-0 will-change-transform"
-        style={{ transform: `translate(${driftX}px, ${driftY}px)` }}
-      >
+      {/* Graph content */}
+      <div className="absolute inset-0">
       {/* Edges */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         <defs>
@@ -212,7 +194,7 @@ const DemoPage = () => {
               height: diameter,
             }}
             animate={{
-              scale: isHighlighted ? [1, 1.3, 1] : isConnectedToHighlight ? [1, 1.1, 1] : 1,
+              scale: node.isMain ? 1 : isHighlighted ? [1, 1.3, 1] : isConnectedToHighlight ? [1, 1.1, 1] : 1,
             }}
             transition={
               isHighlighted || isConnectedToHighlight
